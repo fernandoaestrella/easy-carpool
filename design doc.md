@@ -1,4 +1,6 @@
-easy carpool
+# easy carpool
+
+## Summary
 
 This carpooling app facilitates finding a carpool match in the easiest way possible
 
@@ -8,7 +10,7 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
 - no account creation needed
 - user interface facilitates comparing various departure options
 
-Ideal user journey
+## Ideal user journey
 
 - by user intent
   - want to offer a ride
@@ -72,7 +74,7 @@ Ideal user journey
   - one way
   - round trip
 
-Screens:
+## Screens:
 
 - Landing
   - Create new One Way Carpool button (Small Button)
@@ -113,7 +115,7 @@ Screens:
       - Sort waitlist registration by which will happen closest to the user's registered departure
 - Page Doesn't Exist
 
-Components in order of implementation:
+## Components in order of implementation:
 
 - Small Button
 - Time Picker
@@ -137,6 +139,9 @@ Components in order of implementation:
       - First Name
       - Last Name
 - Form
+- Contact Information
+  - email
+  - phone
 - Ride Registration Input Form
   - Departure Date Picker
   - Departure Time Picker
@@ -192,6 +197,159 @@ Components in order of implementation:
   - Description
   - Accept button (Small Button)
   - Cancel button (Small Button)
-- Contact Information
-  - email
-  - phone
+
+## Tech Stack
+
+- React Native with Expo
+
+### Database and Backend
+
+- Realtime Database (e.g. Firebase Realtime DB)
+  - Automatically syncs data across all connected clients
+  - When one user makes a change, all other users see it instantly
+  - Perfect for ride listings that need immediate updates
+  - No need to refresh the page
+  - Works offline
+  - Simple JSON structure
+  - Low latency
+
+Recommended: Firebase Realtime Database
+
+- Free tier includes:
+  - 1GB storage for storing ride and user data
+  - 10GB/month download/upload bandwidth for data syncing between app and database
+- No server setup needed
+- Simple REST API
+- WebSocket-based updates
+- Real-time Database or Firestore
+- Cloud Functions for automated cleanup
+  - Automatically deletes ride and passenger registrations after 6 hours of completion
+  - Triggered by a time-based scheduler (e.g. Firebase Cron)
+  - Keeps database clean and maintains only active/relevant data
+  - Example:
+    - If ride time was 2pm, data deleted at 8pm same day
+    - Reduces database size and query times
+    - Improves app performance
+- Hosting included
+- Serverless architecture
+- Perfect for MVP and can scale
+- No backend maintenance required
+- Real-time updates
+- Free tier is generous
+- Easy integration with React Native
+- Handles offline data
+- Automatic scaling
+
+## Implementation Plan
+
+1. Create web app
+2. Host on Vercel
+   Optional
+3. Create mobile apps if neccessary
+
+## Development methodology
+
+- Use all of the best software development best practices to serve as a practice, including
+  - test driven development
+  - SOLID principles
+    - Single Responsibility Principle: Each class should have only one reason to change
+      - Open/Closed Principle: Software entities should be open for extension but closed for modification
+      - Liskov Substitution Principle: Objects of a superclass should be replaceable with objects of its subclasses
+        - Example: A `PassengerVehicle` class should be replaceable by its subclass `Car` without breaking the application. If `PassengerVehicle` has a method `getPassengerCapacity()`, `Car` must implement it in a way that maintains the same behavior and constraints.
+      - Interface Segregation Principle: Clients should not be forced to depend on interfaces they don't use
+      - Dependency Inversion Principle: High-level modules should not depend on low-level modules, both should depend on abstractions
+        - Example: Instead of having a `RideService` class directly depend on a `SQLDatabase` class, create an `IDatabase` interface. Both `RideService` and `SQLDatabase` will depend on the `IDatabase` interface. This allows easily swapping databases without changing `RideService`.
+  - clean architecture
+  - atomic commits
+  - semantic versioning
+    - Semantic Versioning (also known as SemVer) is a versioning system that helps developers manage software versions in a meaningful way. It follows a three-part number format: MAJOR.MINOR.PATCH (e.g., 2.1.3).
+      Here's what each number represents:
+      MAJOR version: Incremented when making incompatible API changes
+      MINOR version: Incremented when adding functionality in a backwards-compatible manner
+      PATCH version: Incremented when making backwards-compatible bug fixes
+  - continuous integration
+    - Checks on every push and PR
+      - Code linting
+      - Unit tests
+      - Build verification
+      - Dependency audit
+  - continuous deployment
+  - documentation-driven development
+  - automated testing
+    - unit testing
+    - integration testing
+    - end-to-end testing
+    - performance testing
+  - security best practices
+    - input validation
+    - data encryption
+    - secure communication
+  - accessibility compliance
+  - code linting and formatting
+  - dependency management
+  - error logging and monitoring
+
+## Data structure
+
+### Firebase Realtime Database JSON Structure
+
+```json
+{
+  "carpools": {
+    "$carpoolId": {
+      "name": "string",
+      "ownerEmail": "string",
+      "timeZone": "string",
+      "createdAt": "timestamp",
+      "rides": {
+        "$rideId": {
+          "driverId": "string",
+          "date": "timestamp",
+          "isFlexibleTime": "boolean",
+          "departureTimeStart": "timestamp",
+          "departureTimeEnd": "timestamp",
+          "seatsTotal": "number",
+          "seatsAvailable": "number",
+          "luggageSpace": "string",
+          "preferToDrive": "boolean",
+          "canDrive": "boolean",
+          "notes": "string",
+          "contact": {
+            "email": "string",
+            "phone": "string"
+          },
+          "notifications": {
+            "seatFilled": "boolean",
+            "passengerCanceled": "boolean"
+          },
+          "passengers": {
+            "$passengerId": {
+              "name": "string",
+              "contact": {
+                "email": "string",
+                "phone": "string"
+              },
+              "joinedAt": "timestamp"
+            }
+          }
+        }
+      },
+      "waitlist": {
+        "$passengerId": {
+          "date": "timestamp",
+          "isFlexibleTime": "boolean",
+          "departureTimeStart": "timestamp",
+          "departureTimeEnd": "timestamp",
+          "canDrive": "boolean",
+          "notes": "string",
+          "contact": {
+            "email": "string",
+            "phone": "string"
+          },
+          "createdAt": "timestamp"
+        }
+      }
+    }
+  }
+}
+```
