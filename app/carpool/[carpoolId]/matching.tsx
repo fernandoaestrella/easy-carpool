@@ -8,6 +8,7 @@ import { RideRegistrationData } from "../../../src/components/RideRegistrationFo
 import { PassengerRegistrationData } from "../../../src/components/PassengerRegistrationForm";
 import { Toast } from "../../../src/components/Toast";
 import { colors } from "../../../src/styles/colors";
+import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
 
 export default function CarpoolMatchingPage() {
   const { carpoolId } = useLocalSearchParams();
@@ -181,18 +182,18 @@ export default function CarpoolMatchingPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Carpool Matching</Text>
-
-      <TabMenu
-        tabs={mainTabs}
-        activeTab={activeTab}
-        onTabPress={setActiveTab}
-      />
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {activeTab === "myRegistration"
-          ? renderMyRegistration()
-          : renderAllRegistrations()}
+      <ScrollView style={styles.content}>
+        <ResponsiveContainer>
+          <Text style={styles.pageTitle}>Carpool Matching</Text>
+          <TabMenu
+            tabs={mainTabs}
+            activeTab={activeTab}
+            onTabPress={setActiveTab}
+          />
+          {activeTab === "myRegistration"
+            ? renderMyRegistration()
+            : renderAllRegistrations()}
+        </ResponsiveContainer>
       </ScrollView>
 
       <RegistrationModal

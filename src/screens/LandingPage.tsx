@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { colors } from "../styles/colors";
 import { SmallButton } from "../components/SmallButton";
+import { ResponsiveContainer } from "../components/ResponsiveContainer";
 
 export const LandingPage: React.FC = () => {
   const handleCreateCarpool = () => {
@@ -14,114 +15,116 @@ export const LandingPage: React.FC = () => {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      {/* Header Section */}
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>Easy Carpool</Text>
-        <Text style={styles.subtitle}>
-          Find carpool matches in the easiest way possible
-        </Text>
-      </View>
-
-      {/* Main Action */}
-      <View style={styles.actionSection}>
-        <SmallButton
-          title="Create new One Way Carpool"
-          onPress={handleCreateCarpool}
-        />
-      </View>
-
-      {/* Explanation Section */}
-      <View style={styles.explanationSection}>
-        <Text style={styles.sectionTitle}>How it works</Text>
-
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>No account creation needed</Text>
-          <Text style={styles.featureDescription}>
-            Jump right in and start organizing carpools without the hassle of
-            creating accounts or managing passwords.
+      <ResponsiveContainer>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Easy Carpool</Text>
+          <Text style={styles.subtitle}>
+            Find carpool matches in the easiest way possible
           </Text>
         </View>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>Automatic cleanup</Text>
-          <Text style={styles.featureDescription}>
-            Ride and passenger registrations are automatically deleted a few
-            hours after the trip time, keeping lists clean and relevant.
-          </Text>
+        {/* Main Action */}
+        <View style={styles.actionSection}>
+          <SmallButton
+            title="Create new One Way Carpool"
+            onPress={handleCreateCarpool}
+          />
         </View>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>Smart sorting</Text>
-          <Text style={styles.featureDescription}>
-            All rides and waitlist passengers are automatically sorted by
-            departure times closest to your intended time, making it easy to
-            find the perfect match.
-          </Text>
-        </View>
+        {/* Explanation Section */}
+        <View style={styles.explanationSection}>
+          <Text style={styles.sectionTitle}>How it works</Text>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>Easy contact sharing</Text>
-          <Text style={styles.featureDescription}>
-            Copy contact information of all passengers in a ride with a single
-            click, then paste into your messaging app to coordinate with
-            everyone at once.
-          </Text>
-        </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureTitle}>No account creation needed</Text>
+            <Text style={styles.featureDescription}>
+              Jump right in and start organizing carpools without the hassle of
+              creating accounts or managing passwords.
+            </Text>
+          </View>
 
-        <View style={styles.featureItem}>
-          <Text style={styles.featureTitle}>Compare departure options</Text>
-          <Text style={styles.featureDescription}>
-            The interface makes it simple to compare different departure times
-            and dates, helping you find the most convenient option.
-          </Text>
-        </View>
-      </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureTitle}>Automatic cleanup</Text>
+            <Text style={styles.featureDescription}>
+              Ride and passenger registrations are automatically deleted a few
+              hours after the trip time, keeping lists clean and relevant.
+            </Text>
+          </View>
 
-      {/* How to use Section */}
-      <View style={styles.usageSection}>
-        <Text style={styles.sectionTitle}>Getting started</Text>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureTitle}>Smart sorting</Text>
+            <Text style={styles.featureDescription}>
+              All rides and waitlist passengers are automatically sorted by
+              departure times closest to your intended time, making it easy to
+              find the perfect match.
+            </Text>
+          </View>
 
-        <View style={styles.stepItem}>
-          <Text style={styles.stepNumber}>1</Text>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Create a carpool</Text>
-            <Text style={styles.stepDescription}>
-              Set up a new carpool with your trip name, email, and time zone
+          <View style={styles.featureItem}>
+            <Text style={styles.featureTitle}>Easy contact sharing</Text>
+            <Text style={styles.featureDescription}>
+              Copy contact information of all passengers in a ride with a single
+              click, then paste into your messaging app to coordinate with
+              everyone at once.
+            </Text>
+          </View>
+
+          <View style={styles.featureItem}>
+            <Text style={styles.featureTitle}>Compare departure options</Text>
+            <Text style={styles.featureDescription}>
+              The interface makes it simple to compare different departure times
+              and dates, helping you find the most convenient option.
             </Text>
           </View>
         </View>
 
-        <View style={styles.stepItem}>
-          <Text style={styles.stepNumber}>2</Text>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Share the link</Text>
-            <Text style={styles.stepDescription}>
-              Share the carpool link with potential riders and passengers
-            </Text>
-          </View>
-        </View>
+        {/* How to use Section */}
+        <View style={styles.usageSection}>
+          <Text style={styles.sectionTitle}>Getting started</Text>
 
-        <View style={styles.stepItem}>
-          <Text style={styles.stepNumber}>3</Text>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Register your trip</Text>
-            <Text style={styles.stepDescription}>
-              Choose to offer a ride or join as a passenger, with all trip
-              details
-            </Text>
+          <View style={styles.stepItem}>
+            <Text style={styles.stepNumber}>1</Text>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTitle}>Create a carpool</Text>
+              <Text style={styles.stepDescription}>
+                Set up a new carpool with your trip name, email, and time zone
+              </Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.stepItem}>
-          <Text style={styles.stepNumber}>4</Text>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Connect with others</Text>
-            <Text style={styles.stepDescription}>
-              View matches, copy contact info, and coordinate your shared ride
-            </Text>
+          <View style={styles.stepItem}>
+            <Text style={styles.stepNumber}>2</Text>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTitle}>Share the link</Text>
+              <Text style={styles.stepDescription}>
+                Share the carpool link with potential riders and passengers
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.stepItem}>
+            <Text style={styles.stepNumber}>3</Text>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTitle}>Register your trip</Text>
+              <Text style={styles.stepDescription}>
+                Choose to offer a ride or join as a passenger, with all trip
+                details
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.stepItem}>
+            <Text style={styles.stepNumber}>4</Text>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTitle}>Connect with others</Text>
+              <Text style={styles.stepDescription}>
+                View matches, copy contact info, and coordinate your shared ride
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      </ResponsiveContainer>
     </ScrollView>
   );
 };

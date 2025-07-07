@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import { colors } from "../styles/colors";
 import { SmallButton } from "../components/SmallButton";
+import { ResponsiveContainer } from "../components/ResponsiveContainer";
 
 const HEADING_MESSAGES = [
   "Looks like this ride took a wrong turn!",
@@ -38,37 +39,39 @@ export const PageNotFound: React.FC = () => {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      {/* Illustration */}
-      <View style={styles.illustrationSection}>
-        <Image
-          source={require("../../assets/lost_in_mountains.png")}
-          style={styles.illustration}
-          resizeMode="contain"
-        />
-      </View>
+      <ResponsiveContainer>
+        {/* Illustration */}
+        <View style={styles.illustrationSection}>
+          <Image
+            source={require("../../assets/lost_in_mountains.png")}
+            style={styles.illustration}
+            resizeMode="contain"
+          />
+        </View>
 
-      {/* Heading */}
-      <View style={styles.headingSection}>
-        <Text style={styles.heading}>{randomHeading}</Text>
-      </View>
+        {/* Heading */}
+        <View style={styles.headingSection}>
+          <Text style={styles.heading}>{randomHeading}</Text>
+        </View>
 
-      {/* Body Text */}
-      <View style={styles.bodySection}>
-        <Text style={styles.bodyText}>{randomBody}</Text>
-      </View>
+        {/* Body Text */}
+        <View style={styles.bodySection}>
+          <Text style={styles.bodyText}>{randomBody}</Text>
+        </View>
 
-      {/* Suggestion */}
-      <View style={styles.suggestionSection}>
-        <Text style={styles.suggestionText}>
-          Make sure to type or enter the link correctly, or ask your carpool
-          group to resend the correct link.
-        </Text>
-      </View>
+        {/* Suggestion */}
+        <View style={styles.suggestionSection}>
+          <Text style={styles.suggestionText}>
+            Make sure to type or enter the link correctly, or ask your carpool
+            group to resend the correct link.
+          </Text>
+        </View>
 
-      {/* Action Button */}
-      <View style={styles.actionSection}>
-        <SmallButton title="Back to Safe Roads" onPress={handleGoHome} />
-      </View>
+        {/* Action Button */}
+        <View style={styles.actionSection}>
+          <SmallButton title="Back to Safe Roads" onPress={handleGoHome} />
+        </View>
+      </ResponsiveContainer>
     </ScrollView>
   );
 };

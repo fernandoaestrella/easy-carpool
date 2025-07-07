@@ -6,6 +6,7 @@ import { colors } from "../styles/colors";
 import { Form } from "../components/Form";
 import { BigButton } from "../components/BigButton";
 import { FormFieldConfig } from "../components/FormField";
+import { ResponsiveContainer } from "../components/ResponsiveContainer";
 
 export const CreateCarpoolPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,23 +68,25 @@ export const CreateCarpoolPage: React.FC = () => {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>Create New One Way Carpool</Text>
-        <Text style={styles.subtitle}>
-          Set up a new carpool to start finding matches
-        </Text>
-      </View>
+      <ResponsiveContainer>
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Create New One Way Carpool</Text>
+          <Text style={styles.subtitle}>
+            Set up a new carpool to start finding matches
+          </Text>
+        </View>
 
-      <View style={styles.formSection}>
-        <Form fields={formFields} onSubmit={handleCreateCarpool}>
-          <BigButton
-            title={isLoading ? "Creating..." : "Create"}
-            onPress={() => {}} // Form component handles the onPress
-            disabled={isLoading}
-            style={styles.createButton}
-          />
-        </Form>
-      </View>
+        <View style={styles.formSection}>
+          <Form fields={formFields} onSubmit={handleCreateCarpool}>
+            <BigButton
+              title={isLoading ? "Creating..." : "Create"}
+              onPress={() => {}} // Form component handles the onPress
+              disabled={isLoading}
+              style={styles.createButton}
+            />
+          </Form>
+        </View>
+      </ResponsiveContainer>
     </ScrollView>
   );
 };

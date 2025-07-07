@@ -6,6 +6,7 @@ import { colors } from "../styles/colors";
 import { SmallButton } from "../components/SmallButton";
 import { CopyIcon } from "../components/CopyIcon";
 import { PaperAirplaneAnimation } from "../components/PaperAirplaneAnimation";
+import { ResponsiveContainer } from "../components/ResponsiveContainer";
 
 export const CarpoolSuccessPage: React.FC = () => {
   const { carpoolId } = useLocalSearchParams<{ carpoolId: string }>();
@@ -53,88 +54,90 @@ export const CarpoolSuccessPage: React.FC = () => {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>Carpool Created Successfully!</Text>
-        <Text style={styles.subtitle}>
-          Your carpool has been created. Share these links to get started.
-        </Text>
-      </View>
-
-      {/* Matching Link Section - Emphasized */}
-      <View style={styles.linkSection}>
-        <View style={styles.linkHeader}>
-          <Text style={styles.linkTitle}>Carpool Matching Page</Text>
-          <Text style={styles.linkDescription}>
-            This is where participants will join your carpool, register as
-            drivers or passengers, and find matches. Share this link with
-            everyone who wants to participate.
+      <ResponsiveContainer>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Carpool Created!</Text>
+          <Text style={styles.subtitle}>
+            Share your carpool links below to invite others or edit details.
           </Text>
         </View>
 
-        <View style={styles.urlContainer}>
-          <Text style={styles.urlText}>{matchingUrl}</Text>
-        </View>
+        {/* Matching Link Section */}
+        <View style={styles.linkSection}>
+          <View style={styles.linkHeader}>
+            <Text style={styles.linkTitle}>Carpool Matching Page</Text>
+            <Text style={styles.linkDescription}>
+              This is where participants will join your carpool, register as
+              drivers or passengers, and find matches. Share this link with
+              everyone who wants to participate.
+            </Text>
+          </View>
 
-        <View style={styles.copyButtonContainer}>
+          <View style={styles.urlContainer}>
+            <Text style={styles.urlText}>{matchingUrl}</Text>
+          </View>
+
+          <View style={styles.copyButtonContainer}>
+            <SmallButton
+              title="Copy Link"
+              onPress={handleCopyMatchingUrl}
+              style={styles.fullWidthButton}
+              icon={<CopyIcon size={16} color={colors.text.inverse} />}
+            />
+          </View>
+
           <SmallButton
-            title="Copy Link"
-            onPress={handleCopyMatchingUrl}
+            title="Go to Matching Page"
+            onPress={handleGoToMatching}
             style={styles.fullWidthButton}
-            icon={<CopyIcon size={16} color={colors.text.inverse} />}
           />
         </View>
 
-        <SmallButton
-          title="Go to Matching Page"
-          onPress={handleGoToMatching}
-          style={styles.fullWidthButton}
-        />
-      </View>
+        {/* Edit Link Section */}
+        <View style={styles.linkSectionSecondary}>
+          <View style={styles.linkHeader}>
+            <Text style={styles.linkTitleSecondary}>Carpool Edit Page</Text>
+            <Text style={styles.linkDescriptionSecondary}>
+              Use this link to update carpool details or delete the carpool.
+              Keep this private - only share with carpool organizers.
+            </Text>
+          </View>
 
-      {/* Edit Link Section - Less emphasized */}
-      <View style={styles.linkSectionSecondary}>
-        <View style={styles.linkHeader}>
-          <Text style={styles.linkTitleSecondary}>Carpool Edit Page</Text>
-          <Text style={styles.linkDescriptionSecondary}>
-            Use this link to update carpool details or delete the carpool. Keep
-            this private - only share with carpool organizers.
-          </Text>
-        </View>
+          <View style={styles.urlContainerSecondary}>
+            <Text style={styles.urlTextSecondary}>{editUrl}</Text>
+          </View>
 
-        <View style={styles.urlContainerSecondary}>
-          <Text style={styles.urlTextSecondary}>{editUrl}</Text>
-        </View>
+          <View style={styles.copyButtonContainer}>
+            <SmallButton
+              title="Copy Link"
+              onPress={handleCopyEditUrl}
+              style={styles.secondaryButton}
+              textStyle={styles.secondaryButtonText}
+              icon={<CopyIcon size={16} color={colors.text.primary} />}
+            />
+          </View>
 
-        <View style={styles.copyButtonContainer}>
           <SmallButton
-            title="Copy Link"
-            onPress={handleCopyEditUrl}
+            title="Go to Edit Page"
+            onPress={handleGoToEdit}
             style={styles.secondaryButton}
             textStyle={styles.secondaryButtonText}
+          />
+        </View>
+
+        {/* Copy Both Section */}
+        <View style={styles.copyBothSection}>
+          <SmallButton
+            title="Copy Both Links"
+            onPress={handleCopyBothUrls}
+            style={styles.tertiaryButton}
+            textStyle={styles.tertiaryButtonText}
             icon={<CopyIcon size={16} color={colors.text.primary} />}
           />
         </View>
-
-        <SmallButton
-          title="Go to Edit Page"
-          onPress={handleGoToEdit}
-          style={styles.secondaryButton}
-          textStyle={styles.secondaryButtonText}
-        />
-      </View>
-
-      {/* Copy Both Section */}
-      <View style={styles.copyBothSection}>
-        <SmallButton
-          title="Copy Both Links"
-          onPress={handleCopyBothUrls}
-          style={styles.tertiaryButton}
-          textStyle={styles.tertiaryButtonText}
-          icon={<CopyIcon size={16} color={colors.text.primary} />}
-        />
-      </View>
-
-      {/* Paper Airplane Animation */}
+      </ResponsiveContainer>
+      {/* Paper Airplane Animation - moved outside ResponsiveContainer */}
       <PaperAirplaneAnimation
         trigger={animationTrigger}
         onComplete={() => setAnimationTrigger(false)}

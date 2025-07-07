@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { colors } from "../styles/colors";
 import { SmallButton } from "./SmallButton";
+import { ResponsiveContainer } from "./ResponsiveContainer";
 
 interface DialogProps {
   visible: boolean;
@@ -38,34 +39,35 @@ export const Dialog: React.FC<DialogProps> = ({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <TouchableOpacity
-        style={styles.backdrop}
-        activeOpacity={1}
-        onPress={onCancel}
-      >
-        <View style={[styles.container, style]}>
-          <TouchableOpacity activeOpacity={1}>
-            <View style={styles.dialog}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.description}>{description}</Text>
-
-              <View style={styles.buttonContainer}>
-                <SmallButton
-                  title={cancelText}
-                  onPress={onCancel}
-                  style={styles.cancelButton}
-                  textStyle={styles.cancelButtonText}
-                />
-                <SmallButton
-                  title={acceptText}
-                  onPress={onAccept}
-                  style={styles.acceptButton}
-                />
+      <View style={styles.backdrop}>
+        <ResponsiveContainer style={style}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={onCancel}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.container}>
+              <View style={styles.dialog}>
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.description}>{description}</Text>
+                <View style={styles.buttonContainer}>
+                  <SmallButton
+                    title={cancelText}
+                    onPress={onCancel}
+                    style={styles.cancelButton}
+                    textStyle={styles.cancelButtonText}
+                  />
+                  <SmallButton
+                    title={acceptText}
+                    onPress={onAccept}
+                    style={styles.acceptButton}
+                  />
+                </View>
               </View>
             </View>
           </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+        </ResponsiveContainer>
+      </View>
     </Modal>
   );
 };

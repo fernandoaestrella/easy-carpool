@@ -7,6 +7,7 @@ import { Form } from "../components/Form";
 import { BigButton } from "../components/BigButton";
 import { Dialog } from "../components/Dialog";
 import { FormFieldConfig } from "../components/FormField";
+import { ResponsiveContainer } from "../components/ResponsiveContainer";
 
 interface CarpoolData {
   name: string;
@@ -143,11 +144,11 @@ export const EditCarpoolPage: React.FC = () => {
   }
 
   return (
-    <>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-      >
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <ResponsiveContainer>
         <View style={styles.headerSection}>
           <Text style={styles.title}>Edit Carpool</Text>
           <Text style={styles.subtitle}>Update your carpool information</Text>
@@ -171,18 +172,8 @@ export const EditCarpoolPage: React.FC = () => {
             style={styles.deleteButton}
           />
         </View>
-      </ScrollView>
-
-      <Dialog
-        visible={showDeleteDialog}
-        title="Delete Carpool"
-        description="Are you sure you want to delete this carpool? This action cannot be undone and all associated rides and passengers will be removed."
-        onAccept={handleDeleteCarpool}
-        onCancel={() => setShowDeleteDialog(false)}
-        acceptText="Delete"
-        cancelText="Cancel"
-      />
-    </>
+      </ResponsiveContainer>
+    </ScrollView>
   );
 };
 

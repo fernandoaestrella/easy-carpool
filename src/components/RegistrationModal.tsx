@@ -20,6 +20,7 @@ import {
   PassengerRegistrationData,
 } from "./PassengerRegistrationForm";
 import { colors } from "../styles/colors";
+import { ResponsiveContainer } from "./ResponsiveContainer";
 
 type RegistrationIntent = "offer" | "join" | null;
 
@@ -77,12 +78,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   }, [visible]);
 
   const handleClose = () => {
-    if (intent && Object.keys(formData).length > 0) {
-      // Show dialog suggesting to complete registration first
-      setShowCloseDialog(true);
-    } else {
-      onClose();
-    }
+    setShowCloseDialog(true);
   };
 
   const handleForceClose = () => {
@@ -119,9 +115,10 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   return (
     <>
       <Modal
-        visible={visible}
         animationType="slide"
         presentationStyle="fullScreen"
+        visible={visible}
+        onRequestClose={handleClose}
       >
         <View style={styles.container}>
           <View style={styles.header}>
@@ -135,55 +132,58 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
             style={styles.content}
             showsVerticalScrollIndicator={false}
           >
-            {!intent ? (
-              <View style={styles.intentSelection}>
-                <Text style={styles.intentTitle}>
-                  How would you like to participate?
-                </Text>
-                <Text style={styles.intentSubtitle}>
-                  Choose your preferred option below
-                </Text>
-
-                <View style={styles.intentButtons}>
-                  <BigButton
-                    title="I want to offer a ride"
-                    onPress={() => handleIntentSelect("offer")}
-                    style={styles.intentButton}
-                  />
-                  <BigButton
-                    title="I want to join a ride as a passenger"
-                    onPress={() => handleIntentSelect("join")}
-                    style={styles.intentButton}
-                    variant="secondary"
-                  />
-                </View>
-              </View>
-            ) : (
-              <View style={styles.formContainer}>
-                <View style={styles.intentHeader}>
-                  <Text style={styles.selectedIntent}>
-                    {intent === "offer"
-                      ? "Offering a Ride"
-                      : "Looking for a Ride"}
+            <ResponsiveContainer>
+              {!intent ? (
+                <View style={styles.intentSelection}>
+                  <Text style={styles.intentTitle}>
+                    How would you like to participate?
                   </Text>
-                  <SmallButton title="Change" onPress={resetForm} />
-                </View>
+                  <Text style={styles.intentSubtitle}>
+                    Choose your preferred option below
+                  </Text>
 
-                {intent === "offer" ? (
-                  <RideRegistrationForm
-                    onSubmit={handleFormSubmit}
-                    initialData={formData as Partial<RideRegistrationData>}
-                    onDataChange={handleDataChange}
-                  />
-                ) : (
-                  <PassengerRegistrationForm
-                    onSubmit={handleFormSubmit}
-                    initialData={formData as Partial<PassengerRegistrationData>}
-                    onDataChange={handleDataChange}
-                  />
-                )}
-              </View>
-            )}
+                  <View style={styles.intentButtons}>
+                    <BigButton
+                      title="I want to offer a ride"
+                      onPress={() => handleIntentSelect("offer")}
+                      style={styles.intentButton}
+                    />
+                    <BigButton
+                      title="I want to join a ride as a passenger"
+                      onPress={() => handleIntentSelect("join")}
+                      style={styles.intentButton}
+                    />
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.formContainer}>
+                  <View style={styles.intentHeader}>
+                    <Text style={styles.selectedIntent}>
+                      {intent === "offer"
+                        ? "Offering a Ride"
+                        : "Looking for a Ride"}
+                    </Text>
+                    <SmallButton title="Change" onPress={resetForm} />
+                  </View>
+
+                  {intent === "offer" ? (
+                    <RideRegistrationForm
+                      onSubmit={handleFormSubmit}
+                      initialData={formData as Partial<RideRegistrationData>}
+                      onDataChange={handleDataChange}
+                    />
+                  ) : (
+                    <PassengerRegistrationForm
+                      onSubmit={handleFormSubmit}
+                      initialData={
+                        formData as Partial<PassengerRegistrationData>
+                      }
+                      onDataChange={handleDataChange}
+                    />
+                  )}
+                </View>
+              )}
+            </ResponsiveContainer>
           </ScrollView>
         </View>
       </Modal>
@@ -192,10 +192,10 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         visible={showCloseDialog}
         title="Complete your registration"
         description="For the best user experience, we recommend completing your registration first. This helps us show you the most relevant ride options. Are you sure you want to see other registrations without completing yours?"
-        onAccept={handleForceClose}
-        onCancel={() => setShowCloseDialog(false)}
-        acceptText="Yes, show other registrations"
-        cancelText="Continue filling form"
+        onAccept={() => setShowCloseDialog(false)}
+        onCancel={handleForceClose}
+        acceptText="Continue filling form"
+        cancelText="Yes, show other registrations"
       />
     </>
   );
