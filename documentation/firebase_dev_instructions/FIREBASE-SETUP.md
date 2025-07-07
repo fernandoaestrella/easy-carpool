@@ -123,6 +123,7 @@ firebase init hosting
    - Specify `build` as your public directory (for Expo projects, this is where the web build will go)
    - Configure as a single-page app: Yes
    - Set up automatic builds and deploys with GitHub: Optional, but recommended for CI/CD
+   - What script should be run before every deploy? npx expo export:web
 
 5. Build your Expo web app:
 
