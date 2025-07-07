@@ -283,7 +283,7 @@ npm install -g expo-cli
 npx create-expo-app . -t expo-template-blank-typescript
 
 # Add initial dependencies
-npx expo install react-native-web @expo/webpack-config firebase react-native-calendar-timetable
+npx expo install react-native-web firebase react-native-calendar-timetable
 ```
 
 2. Create Firebase Realtime Database (refer to FIREBASE-SETUP.md)

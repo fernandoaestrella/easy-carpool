@@ -27,9 +27,14 @@ This guide will help you set up Firebase for your Easy Carpool application.
 
 ### Update Configuration
 
-1. Update the Firebase configuration in `config/firebase.ts` with your own configuration:
+1. Add the Firebase configuration to your `App.tsx` file:
 
 ```typescript
+// Add these imports at the top of App.tsx
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
+
+// Add your Firebase configuration
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -39,6 +44,10 @@ const firebaseConfig = {
   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
   appId: "YOUR_APP_ID",
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 ```
 
 ## Step 3: Set up Realtime Database
