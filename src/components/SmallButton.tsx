@@ -1,6 +1,12 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors } from '../styles/colors';
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
+import { colors } from "../styles/colors";
 
 interface SmallButtonProps {
   title: string;
@@ -15,24 +21,22 @@ export const SmallButton: React.FC<SmallButtonProps> = ({
   onPress,
   disabled = false,
   style,
-  textStyle
+  textStyle,
 }) => {
   return (
     <TouchableOpacity
-      style={[
-        styles.button,
-        disabled && styles.buttonDisabled,
-        style
-      ]}
+      style={[styles.button, disabled && styles.buttonDisabled, style]}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.8}
     >
-      <Text style={[
-        styles.buttonText,
-        disabled && styles.buttonTextDisabled,
-        textStyle
-      ]}>
+      <Text
+        style={[
+          styles.buttonText,
+          disabled && styles.buttonTextDisabled,
+          textStyle,
+        ]}
+      >
         {title}
       </Text>
     </TouchableOpacity>
@@ -45,8 +49,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 120,
     elevation: 2,
     shadowColor: colors.neutral.primary,
@@ -65,8 +69,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.text.inverse,
     fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
   buttonTextDisabled: {
     color: colors.text.tertiary,

@@ -84,15 +84,15 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
     - Carpool name
     - User's email
     - Departure time zone selector (needed for automatically deleting past events 6 hours after they have happened)
-    - Create button (Big Button)
+    - Create button (Big Button component)
   - Outputs 2 urls: 1 for Carpool Matching page, and another for the Edit Carpool page
 - Edit Carpool
   - Form fields:
     - Name
     - Email
     - Departure time zone selector
-    - Update button (Big Button)
-    - Delete button (Big Button) (uses confirmation dialog before deleting) (deleted carpool urls take to the Page Doesn't Exist screen if opened) (after deleting, take to the Create New One Way Carpool page)
+    - Update button (Big Button component)
+    - Delete button (Big Button component) (uses confirmation dialog before deleting) (deleted carpool urls take to the Page Doesn't Exist screen if opened) (after deleting, take to the Create New One Way Carpool page)
 - Carpool Matching
   - 2 tabs menu
     1. My Registration (if it has not been submitted yet, provides button to create a new one)
@@ -427,7 +427,7 @@ Firebase Hosting is beginner-friendly:
 
 Broadly, the application should have earthy, organic colors in most backgrounds.
 The components that will most directly be interacted with should be highlighted by having cool and calm colors.
-Any final complement, detail of component shoud have neutral colors.
+Any final complement, detail or component shoud have neutral colors.
 Nothing, unless specified, should have defined borders. the only difference will be the background color between one component and the one behind it.
 Most colors should be notably unsaturated.
 Contrast should be just a little high, but not too much.

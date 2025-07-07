@@ -1,20 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../styles/colors';
-import { SmallButton } from '../components/SmallButton';
+import React from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { colors } from "../styles/colors";
+import { SmallButton } from "../components/SmallButton";
 
 export const LandingPage: React.FC = () => {
   const handleCreateCarpool = () => {
     // TODO: Navigate to Create New One Way Carpool screen
-    console.log('Navigate to create carpool');
+    console.log("Navigate to create carpool");
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       {/* Header Section */}
       <View style={styles.headerSection}>
         <Text style={styles.title}>Easy Carpool</Text>
-        <Text style={styles.subtitle}>Find carpool matches in the easiest way possible</Text>
+        <Text style={styles.subtitle}>
+          Find carpool matches in the easiest way possible
+        </Text>
       </View>
 
       {/* Main Action */}
@@ -28,43 +33,46 @@ export const LandingPage: React.FC = () => {
       {/* Explanation Section */}
       <View style={styles.explanationSection}>
         <Text style={styles.sectionTitle}>How it works</Text>
-        
+
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>No account creation needed</Text>
           <Text style={styles.featureDescription}>
-            Jump right in and start organizing carpools without the hassle of creating accounts or managing passwords.
+            Jump right in and start organizing carpools without the hassle of
+            creating accounts or managing passwords.
           </Text>
         </View>
 
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Automatic cleanup</Text>
           <Text style={styles.featureDescription}>
-            Ride and passenger registrations are automatically deleted a few hours after the trip time, 
-            keeping lists clean and relevant.
+            Ride and passenger registrations are automatically deleted a few
+            hours after the trip time, keeping lists clean and relevant.
           </Text>
         </View>
 
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Smart sorting</Text>
           <Text style={styles.featureDescription}>
-            All rides and waitlist passengers are automatically sorted by departure times closest to your intended time, 
-            making it easy to find the perfect match.
+            All rides and waitlist passengers are automatically sorted by
+            departure times closest to your intended time, making it easy to
+            find the perfect match.
           </Text>
         </View>
 
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Easy contact sharing</Text>
           <Text style={styles.featureDescription}>
-            Copy contact information of all passengers in a ride with a single click, 
-            then paste into your messaging app to coordinate with everyone at once.
+            Copy contact information of all passengers in a ride with a single
+            click, then paste into your messaging app to coordinate with
+            everyone at once.
           </Text>
         </View>
 
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Compare departure options</Text>
           <Text style={styles.featureDescription}>
-            The interface makes it simple to compare different departure times and dates, 
-            helping you find the most convenient option.
+            The interface makes it simple to compare different departure times
+            and dates, helping you find the most convenient option.
           </Text>
         </View>
       </View>
@@ -72,7 +80,7 @@ export const LandingPage: React.FC = () => {
       {/* How to use Section */}
       <View style={styles.usageSection}>
         <Text style={styles.sectionTitle}>Getting started</Text>
-        
+
         <View style={styles.stepItem}>
           <Text style={styles.stepNumber}>1</Text>
           <View style={styles.stepContent}>
@@ -98,7 +106,8 @@ export const LandingPage: React.FC = () => {
           <View style={styles.stepContent}>
             <Text style={styles.stepTitle}>Register your trip</Text>
             <Text style={styles.stepDescription}>
-              Choose to offer a ride or join as a passenger, with all trip details
+              Choose to offer a ride or join as a passenger, with all trip
+              details
             </Text>
           </View>
         </View>
@@ -127,24 +136,24 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   headerSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   title: {
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.text.primary,
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 18,
     color: colors.text.secondary,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
   },
   actionSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 48,
   },
   explanationSection: {
@@ -152,7 +161,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text.primary,
     marginBottom: 24,
   },
@@ -164,7 +173,7 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text.primary,
     marginBottom: 8,
   },
@@ -177,8 +186,8 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   stepItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     backgroundColor: colors.background.tertiary,
     padding: 20,
     marginBottom: 16,
@@ -186,7 +195,7 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.interactive.primary,
     marginRight: 16,
     minWidth: 24,
@@ -196,7 +205,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text.primary,
     marginBottom: 4,
   },
