@@ -125,7 +125,7 @@ export const EditCarpoolPage: React.FC = () => {
       const carpoolRef = ref(database, `carpools/${carpoolId}`);
 
       await remove(carpoolRef);
-      
+
       router.replace("/");
     } catch (error) {
       console.error("Error deleting carpool:", error);
