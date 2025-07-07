@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  View,
 } from "react-native";
 import { colors } from "../styles/colors";
 
@@ -14,6 +15,7 @@ interface SmallButtonProps {
   disabled?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  icon?: React.ReactElement;
 }
 
 export const SmallButton: React.FC<SmallButtonProps> = ({
@@ -22,14 +24,27 @@ export const SmallButton: React.FC<SmallButtonProps> = ({
   disabled = false,
   style,
   textStyle,
+  icon,
 }) => {
-  return (
-    <TouchableOpacity
-      style={[styles.button, disabled && styles.buttonDisabled, style]}
-      onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.8}
-    >
+  const renderContent = () => {
+    if (icon) {
+      return (
+        <View style={styles.contentContainer}>
+          {icon}
+          <Text
+            style={[
+              styles.buttonText,
+              disabled && styles.buttonTextDisabled,
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
       <Text
         style={[
           styles.buttonText,
@@ -39,6 +54,17 @@ export const SmallButton: React.FC<SmallButtonProps> = ({
       >
         {title}
       </Text>
+    );
+  };
+
+  return (
+    <TouchableOpacity
+      style={[styles.button, disabled && styles.buttonDisabled, style]}
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.8}
+    >
+      {renderContent()}
     </TouchableOpacity>
   );
 };
@@ -74,5 +100,10 @@ const styles = StyleSheet.create({
   },
   buttonTextDisabled: {
     color: colors.text.tertiary,
+  },
+  contentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
 });

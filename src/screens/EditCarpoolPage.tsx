@@ -125,17 +125,8 @@ export const EditCarpoolPage: React.FC = () => {
       const carpoolRef = ref(database, `carpools/${carpoolId}`);
 
       await remove(carpoolRef);
-
-      Alert.alert(
-        "Carpool Deleted",
-        "The carpool has been successfully deleted.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.replace("/"),
-          },
-        ]
-      );
+      
+      router.replace("/");
     } catch (error) {
       console.error("Error deleting carpool:", error);
       Alert.alert("Error", "Failed to delete carpool. Please try again.");

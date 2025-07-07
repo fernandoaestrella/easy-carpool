@@ -67,13 +67,13 @@ export const BigButton: React.FC<BigButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: 64,
+    paddingVertical: 32,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 200,
-    minHeight: 48,
+    minWidth: 400,
+    minHeight: 96,
     elevation: 3,
     shadowOffset: {
       width: 0,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 32,
     fontWeight: "600",
     textAlign: "center",
   },

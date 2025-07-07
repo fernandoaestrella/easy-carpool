@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,14 @@ import {
   StyleSheet,
   ViewStyle,
   Modal,
-  Dimensions,
-} from 'react-native';
-import { colors } from '../styles/colors';
-import { getTimezoneOptions, getPopularTimezones, TimezoneOption } from '../data/timezones';
+  useWindowDimensions,
+} from "react-native";
+import { colors } from "../styles/colors";
+import {
+  getTimezoneOptions,
+  getPopularTimezones,
+  TimezoneOption,
+} from "../data/timezones";
 
 interface TimezoneSearchDropdownProps {
   value: string;
@@ -24,27 +28,30 @@ interface TimezoneSearchDropdownProps {
 export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
   value,
   onSelect,
-  placeholder = 'Search timezones...',
+  placeholder = "Search timezones...",
   error,
   style,
 }) => {
+  const { width, height } = useWindowDimensions();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [filteredTimezones, setFilteredTimezones] = useState<TimezoneOption[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [filteredTimezones, setFilteredTimezones] = useState<TimezoneOption[]>(
+    []
+  );
   const [allTimezones, setAllTimezones] = useState<TimezoneOption[]>([]);
   const inputRef = useRef<TextInput>(null);
 
   // Get selected timezone display name
   const getDisplayName = () => {
-    if (!value) return '';
-    const selected = allTimezones.find(tz => tz.id === value);
+    if (!value) return "";
+    const selected = allTimezones.find((tz) => tz.id === value);
     return selected ? selected.displayName : value;
   };
 
   useEffect(() => {
     const timezones = getTimezoneOptions();
     setAllTimezones(timezones);
-    
+
     // Show popular timezones initially
     if (!searchText) {
       setFilteredTimezones(getPopularTimezones());
@@ -52,12 +59,15 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
   }, []);
 
   useEffect(() => {
-    if (searchText.trim() === '') {
+    if (searchText.trim() === "") {
       setFilteredTimezones(getPopularTimezones());
     } else {
-      const filtered = allTimezones.filter(timezone =>
-        timezone.displayName.toLowerCase().includes(searchText.toLowerCase()) ||
-        timezone.id.toLowerCase().includes(searchText.toLowerCase())
+      const filtered = allTimezones.filter(
+        (timezone) =>
+          timezone.displayName
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          timezone.id.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredTimezones(filtered.slice(0, 50)); // Limit results for performance
     }
@@ -65,7 +75,7 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
 
   const handleOpen = () => {
     setIsOpen(true);
-    setSearchText('');
+    setSearchText("");
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
@@ -74,12 +84,12 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
   const handleSelect = (timezone: TimezoneOption) => {
     onSelect(timezone.id);
     setIsOpen(false);
-    setSearchText('');
+    setSearchText("");
   };
 
   const handleClose = () => {
     setIsOpen(false);
-    setSearchText('');
+    setSearchText("");
   };
 
   const renderTimezoneItem = ({ item }: { item: TimezoneOption }) => (
@@ -99,11 +109,8 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
         style={[styles.input, error && styles.inputError]}
         onPress={handleOpen}
       >
-        <Text 
-          style={[
-            styles.inputText, 
-            !value && styles.placeholderText
-          ]}
+        <Text
+          style={[styles.inputText, !value && styles.placeholderText]}
           numberOfLines={1}
         >
           {value ? getDisplayName() : placeholder}
@@ -118,12 +125,20 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
         animationType="fade"
         onRequestClose={handleClose}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={handleClose}
         >
-          <View style={styles.modalContent}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                width: width * 0.9,
+                maxHeight: height * 0.7,
+              },
+            ]}
+          >
             <View style={styles.searchContainer}>
               <TextInput
                 ref={inputRef}
@@ -135,12 +150,12 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
                 placeholderTextColor={colors.text.secondary}
               />
             </View>
-            
+
             <View style={styles.listContainer}>
               {!searchText && (
                 <Text style={styles.sectionHeader}>Popular Timezones</Text>
               )}
-              
+
               <FlatList
                 data={filteredTimezones}
                 renderItem={renderTimezoneItem}
@@ -159,18 +174,18 @@ export const TimezoneSearchDropdown: React.FC<TimezoneSearchDropdownProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   input: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     minHeight: 48,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   inputError: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderWidth: 1,
     borderColor: colors.semantic.error,
   },
@@ -188,16 +203,14 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
     backgroundColor: colors.background.primary,
     borderRadius: 12,
-    width: Dimensions.get('window').width * 0.9,
-    maxHeight: Dimensions.get('window').height * 0.7,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   searchContainer: {
     padding: 16,
@@ -205,7 +218,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.background.secondary,
   },
   searchInput: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -217,7 +230,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text.secondary,
     paddingHorizontal: 16,
     paddingTop: 12,

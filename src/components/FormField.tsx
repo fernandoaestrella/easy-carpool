@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     color: colors.semantic.error,
   },
   input: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   inputError: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderWidth: 1,
     borderColor: colors.semantic.error,
   },

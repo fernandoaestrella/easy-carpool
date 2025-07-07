@@ -4,12 +4,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import { colors } from "../styles/colors";
-import { BigButton } from "../components/BigButton";
 import { SmallButton } from "../components/SmallButton";
 import { CopyIcon } from "../components/CopyIcon";
 import { PaperAirplaneAnimation } from "../components/PaperAirplaneAnimation";
@@ -83,21 +81,18 @@ export const CarpoolSuccessPage: React.FC = () => {
         </View>
 
         <View style={styles.copyButtonContainer}>
-          <TouchableOpacity
-            style={styles.copyButton}
+          <SmallButton
+            title="Copy Link"
             onPress={handleCopyMatchingUrl}
-          >
-            <View style={styles.copyButtonContent}>
-              <CopyIcon size={16} color={colors.text.primary} />
-              <Text style={styles.copyButtonText}>Copy Link</Text>
-            </View>
-          </TouchableOpacity>
+            style={styles.fullWidthButton}
+            icon={<CopyIcon size={16} color={colors.text.inverse} />}
+          />
         </View>
 
-        <BigButton
+        <SmallButton
           title="Go to Matching Page"
           onPress={handleGoToMatching}
-          style={styles.primaryButton}
+          style={styles.fullWidthButton}
         />
       </View>
 
@@ -116,42 +111,32 @@ export const CarpoolSuccessPage: React.FC = () => {
         </View>
 
         <View style={styles.copyButtonContainer}>
-          <TouchableOpacity
-            style={styles.copyButtonSecondary}
+          <SmallButton
+            title="Copy Link"
             onPress={handleCopyEditUrl}
-          >
-            <View style={styles.copyButtonContent}>
-              <CopyIcon size={16} color={colors.text.secondary} />
-              <Text
-                style={[
-                  styles.copyButtonText,
-                  { color: colors.text.secondary },
-                ]}
-              >
-                Copy Link
-              </Text>
-            </View>
-          </TouchableOpacity>
+            style={styles.secondaryButton}
+            textStyle={styles.secondaryButtonText}
+            icon={<CopyIcon size={16} color={colors.text.primary} />}
+          />
         </View>
 
         <SmallButton
           title="Go to Edit Page"
           onPress={handleGoToEdit}
           style={styles.secondaryButton}
+          textStyle={styles.secondaryButtonText}
         />
       </View>
 
       {/* Copy Both Section */}
       <View style={styles.copyBothSection}>
-        <TouchableOpacity
-          style={styles.copyBothButton}
+        <SmallButton
+          title="Copy Both Links"
           onPress={handleCopyBothUrls}
-        >
-          <View style={styles.copyButtonContent}>
-            <CopyIcon size={16} color={colors.text.primary} />
-            <Text style={styles.copyBothButtonText}>Copy Both Links</Text>
-          </View>
-        </TouchableOpacity>
+          style={styles.tertiaryButton}
+          textStyle={styles.tertiaryButtonText}
+          icon={<CopyIcon size={16} color={colors.text.primary} />}
+        />
       </View>
 
       {/* Paper Airplane Animation */}
@@ -252,54 +237,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 16,
   },
-  primaryButton: {
-    flex: 1,
+  fullWidthButton: {
+    width: "100%",
   },
   secondaryButton: {
-    flex: 1,
-    backgroundColor: colors.neutral.secondary,
+    width: "100%",
+    backgroundColor: colors.background.tertiary,
   },
-  copyButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.neutral.tertiary,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  secondaryButtonText: {
+    color: colors.text.primary,
   },
-  copyButtonSecondary: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.neutral.tertiary,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  tertiaryButton: {
+    width: "100%",
+    backgroundColor: colors.background.secondary,
   },
-  copyButtonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  copyButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
+  tertiaryButtonText: {
     color: colors.text.primary,
   },
   copyBothSection: {
     alignItems: "center",
     marginTop: 16,
-  },
-  copyBothButton: {
-    backgroundColor: colors.neutral.tertiary,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  copyBothButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.text.primary,
   },
 });
