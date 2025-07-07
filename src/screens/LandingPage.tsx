@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { router } from "expo-router";
 import { colors } from "../styles/colors";
 import { SmallButton } from "../components/SmallButton";
 
 export const LandingPage: React.FC = () => {
   const handleCreateCarpool = () => {
-    // TODO: Navigate to Create New One Way Carpool screen
-    console.log("Navigate to create carpool");
+    router.push("/create-carpool");
   };
 
   return (

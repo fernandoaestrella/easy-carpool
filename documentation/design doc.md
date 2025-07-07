@@ -83,14 +83,19 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
   - Form fields (all required):
     - Carpool name
     - User's email
-    - Departure time zone selector (needed for automatically deleting past events 6 hours after they have happened)
+    - Departure time zone selector (searchable dropdown with predefined timezone IDs, needed for automatically deleting past events 6 hours after they have happened)
+      - Opens a searchable modal with timezone options
+      - Shows popular timezones by default
+      - Allows typing to filter all available timezones
+      - Displays timezone as "City, Region (UTC±X:XX) Zone Name"
+      - Stores timezone ID (e.g., "America/New_York") in database
     - Create button (Big Button component)
   - Outputs 2 urls: 1 for Carpool Matching page, and another for the Edit Carpool page
 - Edit Carpool
   - Form fields:
     - Name
     - Email
-    - Departure time zone selector
+    - Departure time zone selector (searchable dropdown with predefined timezone IDs)
     - Update button (Big Button component)
     - Delete button (Big Button component) (uses confirmation dialog before deleting) (deleted carpool urls take to the Page Doesn't Exist screen if opened) (after deleting, take to the Create New One Way Carpool page)
 - Carpool Matching
@@ -228,6 +233,14 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
   - Description
   - Accept button (Small Button)
   - Cancel button (Small Button)
+- Timezone Search Dropdown
+  - Searchable modal interface
+  - Shows popular timezones by default
+  - Text input for filtering timezones
+  - Dropdown list with timezone options
+  - Formatted display: "City, Region (UTC±X:XX) Zone Name"
+  - Stores timezone ID in database
+- Toast
 
 ## Tech Stack
 
@@ -368,7 +381,7 @@ Firebase Hosting is beginner-friendly:
     "$carpoolId": {
       "name": "string",
       "ownerEmail": "string",
-      "timeZone": "string",
+      "timeZone": "string", // Timezone ID (e.g., "America/New_York", "Europe/London")
       "createdAt": "timestamp",
       "rides": {
         "$rideId": {

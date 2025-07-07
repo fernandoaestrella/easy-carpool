@@ -27,6 +27,10 @@ export default function RootLayout() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="create-carpool" />
+        <Stack.Screen name="carpool-success/[carpoolId]" />
+        <Stack.Screen name="carpool/[carpoolId]/edit" />
+        <Stack.Screen name="carpool/[carpoolId]/matching" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
