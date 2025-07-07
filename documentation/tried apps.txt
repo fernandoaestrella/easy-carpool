@@ -1,0 +1,25 @@
+## groupcarpool
+
+Current UI problems with groupcarpool in order of priority
+
+As a driver:
+
+- Passengers forget to write their trip's date and time
+- Passengers register more than once
+
+As a passenger:
+
+- Passengers have to individually ignore entries that are not pertinent to their date and time of travel
+- Passengers have to calculate and remember which registered driver is a better match for their departure date and time
+- Passengers have to calculate and remember which passenger is a better match for their departure date and time, in order to choose who to contact
+- Riders put their hometown in the address field. The address field is unclear what it refers to
+- Users set up to offer a ride when they didn't intend to
+
+As any:
+
+- Users forget to clear their entry after the trip has passed
+
+## caroster (need to test more, no clear flow)
+## mywaytogo (big website, not ideal for mobile, too many options at once, doesn't show all carpool options if there's no match, users Passenger and rider interchangeabily instead of sticking to one, map toggle covers button to edit commute, button to edit commute is also for editing one time trip, too many pool options for our use case [van pool, bike pool, walkpool, carpool], buttons used as tabs and as section collapsers instead of one or the other)
+
+all others are paid
