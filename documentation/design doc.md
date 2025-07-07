@@ -422,3 +422,20 @@ Firebase Hosting is beginner-friendly:
   }
 }
 ```
+
+## Visual Style
+
+Broadly, the application should have earthy, organic colors in most backgrounds.
+The components that will most directly be interacted with should be highlighted by having cool and calm colors.
+Any final complement, detail of component shoud have neutral colors.
+Nothing, unless specified, should have defined borders. the only difference will be the background color between one component and the one behind it.
+Most colors should be notably unsaturated.
+Contrast should be just a little high, but not too much.
+Only and all interactible elements should have rounded borders. No other element should have rounded borders.
+Everything can have a raw, grounded texture.
+
+The app should evoke a calm yet playful mood.
+The eye should be guided to flow freely between elements.
+Strategies should be considered to make all components fell open even though they may need to display considerable amounts of information.
+The app could very subtly evoke an ancient feel.
+A paper, earthy or woody texture could be implied very very very subtly.
