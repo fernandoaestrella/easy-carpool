@@ -325,10 +325,6 @@ Firebase Hosting is beginner-friendly:
 - You're using Next.js
 - You don't need tight Firebase integration
 
-  Optional
-
-- Create mobile apps if neccessary (not now)
-
 ## Development methodology
 
 - Use all of the best software development best practices to serve as a practice, including

@@ -10,7 +10,103 @@ import { Toast } from "../../../src/components/Toast";
 import { colors } from "../../../src/styles/colors";
 import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
 
-export default function CarpoolMatchingPage() {
+// Field configs for ride and passenger registration
+const luggageOptions = [
+  { label: "Small", value: "small" },
+  { label: "Medium", value: "medium" },
+  { label: "Large", value: "large" },
+];
+
+const rideFields = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "email", label: "Email", type: "email" },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "date", label: "Departure Date", type: "date", required: true },
+  {
+    key: "isFlexibleTime",
+    label: "Flexible Departure Time",
+    type: "checkbox",
+    default: false,
+  },
+  // Time fields will be conditionally rendered in RegistrationModal
+  {
+    key: "departureTimeStart",
+    label: "Departure Time Start",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTimeEnd",
+    label: "Departure Time End",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTime",
+    label: "Departure Time",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "seatsTotal",
+    label: "Seats Available",
+    type: "number",
+    required: true,
+  },
+  {
+    key: "luggageSpace",
+    label: "Luggage Space",
+    type: "dropdown",
+    options: luggageOptions,
+  },
+  {
+    key: "preferToDrive",
+    label: "I prefer to drive",
+    type: "checkbox",
+    default: true,
+  },
+  { key: "canDrive", label: "I can drive", type: "checkbox", default: true },
+  { key: "notes", label: "Notes", type: "multiline_text" },
+];
+
+const passengerFields = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "email", label: "Email", type: "email" },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "date", label: "Departure Date", type: "date", required: true },
+  {
+    key: "isFlexibleTime",
+    label: "Flexible Departure",
+    type: "checkbox",
+    default: false,
+  },
+  {
+    key: "departureTimeStart",
+    label: "Departure Time Start",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTimeEnd",
+    label: "Departure Time End",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTime",
+    label: "Departure Time",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "canDrive",
+    label: "I can drive if needed",
+    type: "checkbox",
+    default: false,
+  },
+  { key: "notes", label: "Notes", type: "multiline_text" },
+];
+const MatchingScreen: React.FC = () => {
   const { carpoolId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("myRegistration");
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
@@ -201,6 +297,8 @@ export default function CarpoolMatchingPage() {
         onClose={() => setShowRegistrationModal(false)}
         onSubmit={handleRegistrationSubmit}
         autoOpen={!userRegistration}
+        rideFields={rideFields}
+        passengerFields={passengerFields}
       />
 
       <Toast
@@ -210,7 +308,9 @@ export default function CarpoolMatchingPage() {
       />
     </View>
   );
-}
+};
+
+export default MatchingScreen;
 
 const styles = StyleSheet.create({
   container: {
