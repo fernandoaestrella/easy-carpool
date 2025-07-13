@@ -32,17 +32,17 @@ export function RegistrationCard({
   });
   // Helper to get registration's departure time (fixed or flexible start)
   const getRegistrationDepartureTimeMs = () => {
-    const depTime = registration.isFlexibleTime
+    const date = registration.date;
+    const time = registration.isFlexibleTime
       ? registration.departureTimeStart
       : registration.fixedDepartureTime;
-    if (!depTime) return null;
+    if (!date || !time) return null;
     try {
       // @ts-ignore
       const { DateTime } = require("luxon");
-      if (typeof depTime === "number") return depTime;
-      if (typeof depTime === "string" && /^\d+$/.test(depTime))
-        return parseInt(depTime, 10);
-      const dt = DateTime.fromISO(depTime, { zone: timeZone });
+      // Combine date and time into ISO string
+      const iso = `${date}T${time}`;
+      const dt = DateTime.fromISO(iso, { zone: timeZone });
       if (dt.isValid) return dt.toMillis();
       return null;
     } catch {

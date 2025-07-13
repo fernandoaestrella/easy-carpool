@@ -353,16 +353,18 @@ const MatchingScreen: React.FC = () => {
 
   // Helper to get the user's reference departure time as a number (ms since epoch)
   const getUserReferenceDepartureTimeMs = () => {
-    const refTime = getUserReferenceDepartureTime();
-    if (!refTime) return null;
-    // Use luxon to parse as ms
+    const reg = userRegistration;
+    if (!reg) return null;
+    const date = reg.date;
+    const time = reg.isFlexibleTime
+      ? reg.departureTimeStart
+      : reg.fixedDepartureTime;
+    if (!date || !time) return null;
     try {
       // @ts-ignore
       const { DateTime } = require("luxon");
-      if (typeof refTime === "number") return refTime;
-      if (typeof refTime === "string" && /^\d+$/.test(refTime))
-        return parseInt(refTime, 10);
-      const dt = DateTime.fromISO(refTime, { zone: carpoolTimeZone });
+      const iso = `${date}T${time}`;
+      const dt = DateTime.fromISO(iso, { zone: carpoolTimeZone });
       if (dt.isValid) return dt.toMillis();
       return null;
     } catch {
@@ -372,15 +374,16 @@ const MatchingScreen: React.FC = () => {
 
   // Helper to get registration's departure time as ms
   const getRegistrationDepartureTimeMs = (reg: any) => {
-    const depTime = getRegistrationDepartureTime(reg);
-    if (!depTime) return null;
+    const date = reg.date;
+    const time = reg.isFlexibleTime
+      ? reg.departureTimeStart
+      : reg.fixedDepartureTime;
+    if (!date || !time) return null;
     try {
       // @ts-ignore
       const { DateTime } = require("luxon");
-      if (typeof depTime === "number") return depTime;
-      if (typeof depTime === "string" && /^\d+$/.test(depTime))
-        return parseInt(depTime, 10);
-      const dt = DateTime.fromISO(depTime, { zone: carpoolTimeZone });
+      const iso = `${date}T${time}`;
+      const dt = DateTime.fromISO(iso, { zone: carpoolTimeZone });
       if (dt.isValid) return dt.toMillis();
       return null;
     } catch {
@@ -415,7 +418,55 @@ const MatchingScreen: React.FC = () => {
     const list = isRides ? rides : waitlist;
     const userDepartureTimeStr = formatUserDepartureTime();
     const userRefMs = getUserReferenceDepartureTimeMs();
-    const sortedList = userRefMs ? sortRegistrationsByTimeDiff(list) : list;
+
+    // Helper: get date string (YYYY-MM-DD) from registration
+    const getRegistrationDateStr = (reg: any) => {
+      // Prefer explicit date field if present
+      if (reg.date) return reg.date;
+      // Try to extract from fixedDepartureTime or departureTimeStart
+      const timeVal = reg.isFlexibleTime
+        ? reg.departureTimeStart || reg.departureTimeEnd
+        : reg.fixedDepartureTime;
+      if (!timeVal) return null;
+      try {
+        // @ts-ignore
+        const { DateTime } = require("luxon");
+        let dt;
+        if (typeof timeVal === "number") {
+          dt = DateTime.fromMillis(timeVal, { zone: carpoolTimeZone });
+        } else if (/^\d+$/.test(timeVal)) {
+          dt = DateTime.fromMillis(parseInt(timeVal, 10), {
+            zone: carpoolTimeZone,
+          });
+        } else {
+          dt = DateTime.fromISO(timeVal, { zone: carpoolTimeZone });
+        }
+        if (dt.isValid) return dt.toISODate();
+      } catch {}
+      return null;
+    };
+
+    // Get today's date string in carpool timezone
+    let todayStr = null;
+    try {
+      // @ts-ignore
+      const { DateTime } = require("luxon");
+      todayStr = DateTime.now().setZone(carpoolTimeZone).toISODate();
+    } catch {
+      const now = new Date();
+      todayStr = now.toISOString().slice(0, 10);
+    }
+
+    // Filter out registrations with date before today
+    const filteredList = list.filter((reg) => {
+      const regDate = getRegistrationDateStr(reg);
+      if (!regDate) return true; // If no date, show (fail open)
+      return regDate >= todayStr;
+    });
+
+    const sortedList = userRefMs
+      ? sortRegistrationsByTimeDiff(filteredList)
+      : filteredList;
     return (
       <>
         {/* Info line about sorting */}
