@@ -42,18 +42,21 @@ const rideFields = [
     label: "Departure Time Start",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime === true,
   },
   {
     key: "departureTimeEnd",
     label: "Departure Time End",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime === true,
   },
   {
     key: "departureTime",
     label: "Departure Time",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime !== true,
   },
   {
     key: "seatsTotal",
@@ -67,6 +70,7 @@ const rideFields = [
     label: "Luggage Space",
     type: "dropdown",
     options: luggageOptions,
+    default: "medium",
   },
   {
     key: "preferToDrive",
@@ -74,7 +78,13 @@ const rideFields = [
     type: "checkbox",
     default: true,
   },
-  { key: "canDrive", label: "I can drive", type: "checkbox", default: true },
+  {
+    key: "canDrive",
+    label: "I can drive",
+    type: "checkbox",
+    default: false,
+    showIf: (values: any) => values.preferToDrive === false,
+  },
   { key: "notes", label: "Notes", type: "multiline_text" },
 ];
 

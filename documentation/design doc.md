@@ -156,7 +156,7 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
     - Dropdown
   - "I prefer to drive" checkbox (default: True)
   - If "I prefer to drive" checkbox = False
-    - "I can drive" checkbox (default: True)
+    - "I can drive" checkbox (default: False)
   - Notes
     - Text Input
 - Ride Registration
