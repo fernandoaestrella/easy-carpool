@@ -238,8 +238,30 @@ Easily add new field types by extending FormField.
 #### What cannot be done:
 
 Use FormField outside of a Form (it will not manage its own state or validation).
-Handle complex, cross-field validation (current validation is per-field only).
 Use uncontrolled inputs (all fields are controlled by the Form state).
+
+#### Cross-field validation and external errors
+
+The `Form` component supports an `externalErrors` prop, which allows you to display custom error messages for any field, such as for cross-field validation (e.g., requiring at least one of two fields).
+
+**Example:**
+
+```tsx
+<Form
+  fields={fields}
+  values={formValues}
+  onChange={setFormValues}
+  onSubmit={handleSubmit}
+  externalErrors={{
+    email: "Please provide at least one contact method.",
+    phone: "Please provide at least one contact method.",
+  }}
+>
+  <BigButton title="Submit" />
+</Form>
+```
+
+If a key exists in `externalErrors`, its message will be shown under the corresponding field, overriding any internal validation error for that field. This enables parent components to enforce and display cross-field or custom validation logic.
 
 ## 🔧 Development
 

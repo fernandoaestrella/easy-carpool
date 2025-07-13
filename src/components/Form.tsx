@@ -9,6 +9,7 @@ interface FormProps {
   style?: ViewStyle;
   values?: Record<string, any>;
   onChange?: (values: Record<string, any>) => void;
+  externalErrors?: Record<string, string>;
 }
 
 export const Form: React.FC<FormProps> = ({
@@ -18,6 +19,7 @@ export const Form: React.FC<FormProps> = ({
   style,
   values: controlledValues,
   onChange,
+  externalErrors = {},
 }) => {
   const [internalValues, setInternalValues] = useState<Record<string, any>>(
     () => {
@@ -110,15 +112,19 @@ export const Form: React.FC<FormProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {fields.map((field) => (
-        <FormField
-          key={field.key}
-          config={field}
-          value={values[field.key] || ""}
-          onChangeValue={handleFieldChange}
-          error={errors[field.key]}
-        />
-      ))}
+      {fields.map((field) => {
+        // Prefer externalErrors over internal errors
+        const errorMsg = externalErrors[field.key] || errors[field.key];
+        return (
+          <FormField
+            key={field.key}
+            config={field}
+            value={values[field.key] || ""}
+            onChangeValue={handleFieldChange}
+            error={errorMsg}
+          />
+        );
+      })}
 
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {

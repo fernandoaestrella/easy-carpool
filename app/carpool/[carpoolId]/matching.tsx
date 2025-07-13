@@ -86,8 +86,18 @@ const rideFields = [
   },
   { key: "notes", label: "Notes", type: "multiline_text" },
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "phone", label: "Phone", type: "phone" },
-  { key: "email", label: "Email", type: "email" },
+  {
+    key: "phone",
+    label: "Phone",
+    type: "phone",
+    placeholder: "Enter your phone (or email below)",
+  },
+  {
+    key: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "Enter your email (or phone above)",
+  },
 ];
 
 const passengerFields = [
@@ -127,8 +137,18 @@ const passengerFields = [
   },
   { key: "notes", label: "Notes", type: "multiline_text" },
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "phone", label: "Phone", type: "phone" },
-  { key: "email", label: "Email", type: "email" },
+  {
+    key: "phone",
+    label: "Phone",
+    type: "phone",
+    placeholder: "Enter your phone (or email above)",
+  },
+  {
+    key: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "Enter your email (or phone below)",
+  },
 ];
 const MatchingScreen: React.FC = () => {
   const { width: windowWidth } = useWindowDimensions();

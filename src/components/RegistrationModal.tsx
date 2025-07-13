@@ -39,6 +39,10 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const { width: windowWidth } = useWindowDimensions();
   const [intent, setIntent] = useState<"offer" | "join" | null>(null);
   const [formValues, setFormValues] = useState<any>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    phone?: string;
+  }>({});
 
   // Helper to get sensible default values for all fields
   const getDefaultValues = (fields: any[]) => {
@@ -94,8 +98,18 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setFormValues(getDefaultValues(fields));
   }, [visible, intent, rideFields, passengerFields]);
 
-  // Submit registration to Firebase
+  // Custom cross-field validation for email/phone
   const handleFormSubmit = async (values: any) => {
+    const email = values.email?.trim();
+    const phone = values.phone?.trim();
+    if (!email && !phone) {
+      setFieldErrors({
+        email: "Please provide at least one contact method.",
+        phone: "Please provide at least one contact method.",
+      });
+      return;
+    }
+    setFieldErrors({});
     onSubmit(values, intent);
     if (!carpoolId) return;
     if (!intent) return;
@@ -156,6 +170,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   };
 
   // Filter fields based on showIf (for conditional fields)
+  // Patch field configs to inject error messages for email/phone
   const getFields = () => {
     const fields =
       intent === "offer"
@@ -163,7 +178,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         : intent === "join"
         ? passengerFields
         : [];
-    return fields.filter((field) => !field.showIf || field.showIf(formValues));
+    return fields
+      .filter((field) => !field.showIf || field.showIf(formValues))
+      .map((field) => {
+        if (field.key === "email" || field.key === "phone") {
+          const key = field.key as "email" | "phone";
+          return { ...field, error: fieldErrors[key] };
+        }
+        return field;
+      });
   };
 
   return (
@@ -219,8 +242,34 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 fields={getFields()}
                 onSubmit={handleFormSubmit}
                 values={formValues}
-                onChange={setFormValues}
+                onChange={(vals: any) => {
+                  setFormValues(vals);
+                  // If either email or phone is filled, clear both errors
+                  if (
+                    (vals.email && vals.email.trim()) ||
+                    (vals.phone && vals.phone.trim())
+                  ) {
+                    if (fieldErrors.email || fieldErrors.phone) {
+                      setFieldErrors({});
+                    }
+                  }
+                }}
+                externalErrors={fieldErrors}
               >
+                {/* Instructional text below form fields, above submit button */}
+                <View style={{ marginBottom: 16 }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      color: colors.text.primary,
+                      fontSize: 16,
+                      textAlign: "center",
+                    }}
+                  >
+                    Please provide either your email or phone number (at least
+                    one is required).
+                  </Text>
+                </View>
                 <BigButton
                   title="Submit"
                   onPress={() => handleFormSubmit(formValues)}
