@@ -129,7 +129,6 @@ The app includes a delightful 404 page with:
 - **Beautiful illustration** - Mountain road scene with directional signs
 - **Easy navigation** - "Back to Safe Roads" button returns to home
 
-
 ### Registration Editing & Data Persistence
 
 When a user edits their registration, the app deletes the previous registration from both Firebase Realtime Database and the browser's localStorage before saving the new registration. This ensures only the latest registration is kept and shown. Registration data is always loaded from localStorage (and refreshed from Firebase if needed) to persist across browser sessions.

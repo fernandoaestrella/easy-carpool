@@ -17,6 +17,7 @@ import { getResponsiveContentStyle } from "../styles/layout";
 import { Form } from "./Form";
 import { BigButton } from "./BigButton";
 
+
 interface RegistrationModalProps {
   visible: boolean;
   onClose: () => void;
@@ -45,6 +46,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     email?: string;
     phone?: string;
   }>({});
+  // Removed skipInitialValues, will use parent callback
 
   // Helper to get sensible default values for all fields
   const getDefaultValues = (fields: any[]) => {
@@ -185,12 +187,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     ? "Offering a Ride"
                     : "Looking for a Ride"}
                 </Text>
-                <TouchableOpacity
-                  onPress={() => setIntent(null)}
-                  style={styles.changeButton}
-                >
-                  <Text style={styles.changeButtonText}>Change</Text>
-                </TouchableOpacity>
+                {/* Hide Change button if a registration already exists (initialValues is present) */}
+                { !initialValues && (
+                  <TouchableOpacity
+                    onPress={() => setIntent(null)}
+                    style={styles.changeButton}
+                  >
+                    <Text style={styles.changeButtonText}>Change</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               <Form
                 fields={getFields()}

@@ -55,6 +55,7 @@ const MatchingScreen: React.FC = () => {
   const [userRegistration, setUserRegistration] =
     useState<RegistrationWithId | null>(null);
   const [modalInitialValues, setModalInitialValues] = useState<any>(null);
+  const [modalIntent, setModalIntent] = useState<"offer" | "join" | null>(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -129,7 +130,8 @@ const MatchingScreen: React.FC = () => {
       if ("rideId" in userRegistration && userRegistration.rideId) {
         oldPath = `carpools/${carpoolIdStr}/rides/${userRegistration.rideId}`;
       } else if (
-        "waitlistPassengerId" in userRegistration && userRegistration.waitlistPassengerId
+        "waitlistPassengerId" in userRegistration &&
+        userRegistration.waitlistPassengerId
       ) {
         oldPath = `carpools/${carpoolIdStr}/waitlist/${userRegistration.waitlistPassengerId}`;
       }
@@ -271,6 +273,7 @@ const MatchingScreen: React.FC = () => {
 
   const handleEditRegistration = () => {
     setModalInitialValues(userRegistration);
+    setModalIntent(userRegistration?.intent || null);
     setShowRegistrationModal(true);
   };
 
@@ -320,6 +323,12 @@ const MatchingScreen: React.FC = () => {
     );
   };
 
+  // Handler for toggling intent from RegistrationModal
+  const handleToggleIntent = (newIntent: "offer" | "join") => {
+    setModalInitialValues(null); // Clear initial values so modal doesn't override intent
+    setModalIntent(newIntent);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerSticky}>
@@ -341,6 +350,7 @@ const MatchingScreen: React.FC = () => {
         onClose={() => {
           setShowRegistrationModal(false);
           setModalInitialValues(null);
+          setModalIntent(null);
           // Only show dialog if user has not registered yet
           if (!userRegistration) {
             setShowDialog(true);
