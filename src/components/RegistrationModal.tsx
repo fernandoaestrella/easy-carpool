@@ -1,6 +1,8 @@
 import { colors } from "../styles/colors";
 
 import React, { useState, useEffect } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { getDatabase, ref, push, set } from "firebase/database";
 import {
   Modal,
   View,
@@ -32,6 +34,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   rideFields,
   passengerFields,
 }) => {
+  // Get carpoolId from URL
+  const { carpoolId } = useLocalSearchParams<{ carpoolId: string }>();
   const { width: windowWidth } = useWindowDimensions();
   const [intent, setIntent] = useState<"offer" | "join" | null>(null);
   const [formValues, setFormValues] = useState<any>({});
@@ -90,8 +94,65 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setFormValues(getDefaultValues(fields));
   }, [visible, intent, rideFields, passengerFields]);
 
-  const handleFormSubmit = (values: any) => {
+  // Submit registration to Firebase
+  const handleFormSubmit = async (values: any) => {
     onSubmit(values, intent);
+    if (!carpoolId) return;
+    if (!intent) return;
+    const database = getDatabase();
+    try {
+      if (intent === "offer") {
+        // Ride registration
+        const ridesRef = ref(database, `carpools/${carpoolId}/rides`);
+        const newRideRef = push(ridesRef);
+        // Compose ride data
+        const rideData = {
+          ...values,
+          date: values.date || null,
+          isFlexibleTime: values.isFlexibleTime || false,
+          departureTimeStart: values.departureTimeStart || null,
+          departureTimeEnd: values.departureTimeEnd || null,
+          seatsTotal: values.seatsTotal || 1,
+          seatsAvailable: values.seatsTotal || 1,
+          luggageSpace: values.luggageSpace || "Small",
+          preferToDrive: values.preferToDrive ?? true,
+          canDrive: values.canDrive ?? false,
+          notes: values.notes || "",
+          contact: {
+            email: values.email || "",
+            phone: values.phone || "",
+          },
+          notifications: {
+            seatFilled: false,
+            passengerCanceled: false,
+          },
+          createdAt: Date.now(),
+        };
+        await set(newRideRef, rideData);
+      } else if (intent === "join") {
+        // Passenger registration (waitlist)
+        const waitlistRef = ref(database, `carpools/${carpoolId}/waitlist`);
+        const newPassengerRef = push(waitlistRef);
+        const passengerData = {
+          ...values,
+          date: values.date || null,
+          isFlexibleTime: values.isFlexibleTime || false,
+          departureTimeStart: values.departureTimeStart || null,
+          departureTimeEnd: values.departureTimeEnd || null,
+          canDrive: values.canDrive ?? false,
+          notes: values.notes || "",
+          contact: {
+            email: values.email || "",
+            phone: values.phone || "",
+          },
+          createdAt: Date.now(),
+        };
+        await set(newPassengerRef, passengerData);
+      }
+    } catch (e) {
+      // Minimal error handling as per instructions
+      // Optionally, add error reporting here
+    }
   };
 
   // Filter fields based on showIf (for conditional fields)
