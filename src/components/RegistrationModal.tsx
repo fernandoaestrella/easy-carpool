@@ -1,6 +1,6 @@
 import { colors } from "../styles/colors";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -31,6 +31,58 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 }) => {
   const [intent, setIntent] = useState<"offer" | "join" | null>(null);
   const [formValues, setFormValues] = useState<any>({});
+
+  // Helper to get sensible default values for all fields
+  const getDefaultValues = (fields: any[]) => {
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+      now.getDate()
+    )}`;
+    const nextHour = new Date(now.getTime());
+    nextHour.setHours(
+      now.getMinutes() > 0 ? now.getHours() + 1 : now.getHours(),
+      0,
+      0,
+      0
+    );
+    const nextHourStr = `${pad(nextHour.getHours())}:${pad(
+      nextHour.getMinutes()
+    )}`;
+    const nowStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    const oneHourLaterStr = `${pad(oneHourLater.getHours())}:${pad(
+      oneHourLater.getMinutes()
+    )}`;
+
+    const defaults: Record<string, any> = {};
+    fields.forEach((field: any) => {
+      if (field.type === "date") {
+        defaults[field.key] = todayStr;
+      } else if (field.key === "departureTime") {
+        defaults[field.key] = nextHourStr;
+      } else if (field.key === "departureTimeStart") {
+        defaults[field.key] = nowStr;
+      } else if (field.key === "departureTimeEnd") {
+        defaults[field.key] = oneHourLaterStr;
+      } else if (field.key === "preferToDrive") {
+        defaults[field.key] = true;
+      } else if (typeof field.default !== "undefined") {
+        defaults[field.key] = field.default;
+      }
+    });
+    return defaults;
+  };
+
+  // Reset form values to defaults on modal open or intent change
+  useEffect(() => {
+    if (!visible) return;
+    let fields = [];
+    if (intent === "offer") fields = rideFields;
+    else if (intent === "join") fields = passengerFields;
+    else return setFormValues({});
+    setFormValues(getDefaultValues(fields));
+  }, [visible, intent, rideFields, passengerFields]);
 
   const handleFormSubmit = (values: any) => {
     onSubmit(values, intent);
@@ -93,7 +145,12 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <Text style={styles.changeButtonText}>Change</Text>
                 </TouchableOpacity>
               </View>
-              <Form fields={getFields()} onSubmit={handleFormSubmit}>
+              <Form
+                fields={getFields()}
+                onSubmit={handleFormSubmit}
+                values={formValues}
+                onChange={setFormValues}
+              >
                 <BigButton
                   title="Submit"
                   onPress={() => handleFormSubmit(formValues)}

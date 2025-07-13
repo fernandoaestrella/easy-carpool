@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import { FormField, FormFieldConfig } from "./FormField";
 
@@ -7,6 +7,8 @@ interface FormProps {
   onSubmit: (values: Record<string, string>) => void;
   children?: React.ReactNode;
   style?: ViewStyle;
+  values?: Record<string, any>;
+  onChange?: (values: Record<string, any>) => void;
 }
 
 export const Form: React.FC<FormProps> = ({
@@ -14,25 +16,48 @@ export const Form: React.FC<FormProps> = ({
   onSubmit,
   children,
   style,
+  values: controlledValues,
+  onChange,
 }) => {
-  const [values, setValues] = useState<Record<string, any>>(() => {
-    const initialValues: Record<string, any> = {};
-    fields.forEach((field) => {
-      if (field.type === "checkbox") {
-        initialValues[field.key] = field.value ?? false;
-      } else if (field.type === "number") {
-        initialValues[field.key] = field.value ?? "";
-      } else {
-        initialValues[field.key] = field.value ?? "";
-      }
+  const [internalValues, setInternalValues] = useState<Record<string, any>>(
+    () => {
+      const initialValues: Record<string, any> = {};
+      fields.forEach((field) => {
+        if (field.type === "checkbox") {
+          initialValues[field.key] = field.value ?? false;
+        } else if (field.type === "number") {
+          initialValues[field.key] = field.value ?? "";
+        } else {
+          initialValues[field.key] = field.value ?? "";
+        }
+      });
+      return initialValues;
+    }
+  );
+  const values = controlledValues || internalValues;
+  const setValues = onChange || setInternalValues;
+
+  useEffect(() => {
+    if (controlledValues) return; // don't sync if controlled
+    // If fields change, reset internal values
+    setInternalValues((prev) => {
+      const next: Record<string, any> = { ...prev };
+      fields.forEach((field) => {
+        if (!(field.key in next)) {
+          if (field.type === "checkbox") next[field.key] = field.value ?? false;
+          else if (field.type === "number") next[field.key] = field.value ?? "";
+          else next[field.key] = field.value ?? "";
+        }
+      });
+      return next;
     });
-    return initialValues;
-  });
+    // eslint-disable-next-line
+  }, [fields]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleFieldChange = (key: string, value: any) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev: any) => ({ ...prev, [key]: value }));
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: "" }));
     }
