@@ -129,6 +129,13 @@ The app includes a delightful 404 page with:
 - **Beautiful illustration** - Mountain road scene with directional signs
 - **Easy navigation** - "Back to Safe Roads" button returns to home
 
+
+### Registration Editing & Data Persistence
+
+When a user edits their registration, the app deletes the previous registration from both Firebase Realtime Database and the browser's localStorage before saving the new registration. This ensures only the latest registration is kept and shown. Registration data is always loaded from localStorage (and refreshed from Firebase if needed) to persist across browser sessions.
+
+---
+
 ### Form and FormField Components
 
 The form system is built around two components: Form and FormField, both found in components.
@@ -240,28 +247,11 @@ Easily add new field types by extending FormField.
 Use FormField outside of a Form (it will not manage its own state or validation).
 Use uncontrolled inputs (all fields are controlled by the Form state).
 
-#### Cross-field validation and external errors
+#### Cross-field validation: Contact Method
 
-The `Form` component supports an `externalErrors` prop, which allows you to display custom error messages for any field, such as for cross-field validation (e.g., requiring at least one of two fields).
+The form enforces that at least one contact method (email or phone) is provided. If the user submits the form with both fields empty, an error message is shown under both fields: "Please provide at least one contact method". This error is cleared as soon as the user starts editing either field. The error message is only shown after a submit attempt with both fields empty, and not while filling out the form.
 
-**Example:**
-
-```tsx
-<Form
-  fields={fields}
-  values={formValues}
-  onChange={setFormValues}
-  onSubmit={handleSubmit}
-  externalErrors={{
-    email: "Please provide at least one contact method.",
-    phone: "Please provide at least one contact method.",
-  }}
->
-  <BigButton title="Submit" />
-</Form>
-```
-
-If a key exists in `externalErrors`, its message will be shown under the corresponding field, overriding any internal validation error for that field. This enables parent components to enforce and display cross-field or custom validation logic.
+The `Form` component also supports an `externalErrors` prop, which allows you to display custom error messages for any field, such as for cross-field validation.
 
 ## 🔧 Development
 

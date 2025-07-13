@@ -24,6 +24,7 @@ interface RegistrationModalProps {
   autoOpen?: boolean;
   rideFields: any[];
   passengerFields: any[];
+  initialValues?: any;
 }
 
 export const RegistrationModal: React.FC<RegistrationModalProps> = ({
@@ -33,6 +34,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   autoOpen = false,
   rideFields,
   passengerFields,
+  initialValues,
 }) => {
   // Get carpoolId from URL
   const { carpoolId } = useLocalSearchParams<{ carpoolId: string }>();
@@ -88,15 +90,23 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     return defaults;
   };
 
-  // Reset form values to defaults on modal open or intent change
+  // Reset form values to defaults on modal open or intent change, or prefill with initialValues if provided
   useEffect(() => {
     if (!visible) return;
+    if (
+      initialValues &&
+      (initialValues.intent === "offer" || initialValues.intent === "join")
+    ) {
+      setIntent(initialValues.intent);
+      setFormValues(initialValues);
+      return;
+    }
     let fields = [];
     if (intent === "offer") fields = rideFields;
     else if (intent === "join") fields = passengerFields;
     else return setFormValues({});
     setFormValues(getDefaultValues(fields));
-  }, [visible, intent, rideFields, passengerFields]);
+  }, [visible, intent, rideFields, passengerFields, initialValues]);
 
   // Custom cross-field validation for email/phone
   const handleFormSubmit = (values: any) => {

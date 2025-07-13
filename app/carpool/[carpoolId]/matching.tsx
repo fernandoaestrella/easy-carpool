@@ -6,17 +6,38 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
-import { getResponsiveContentStyle } from "../../../src/styles/layout";
 import { useLocalSearchParams } from "expo-router";
 import { TabMenu } from "../../../src/components/TabMenu";
 import { BigButton } from "../../../src/components/BigButton";
 import { RegistrationModal } from "../../../src/components/RegistrationModal";
+import { Toast } from "../../../src/components/Toast";
+import { Dialog } from "../../../src/components/Dialog";
+import {
+  getDatabase,
+  ref,
+  remove,
+  push,
+  set,
+  onValue,
+  off,
+} from "firebase/database";
+import { colors } from "../../../src/styles/colors";
+import {
+  rideFields,
+  passengerFields,
+} from "../../../src/data/registrationFields";
+import { RegistrationCard } from "../../../src/components/RegistrationCard";
+import { RegistrationList } from "../../../src/components/RegistrationList";
+import {
+  checkForExistingRegistration,
+  showToast,
+} from "../../../src/utils/registrationUtils";
+
 import {
   RideRegistrationData,
   PassengerRegistrationData,
 } from "../../../src/types/registration";
 
-// Extend registration types to allow id fields for local use
 type RideRegistrationWithId = RideRegistrationData & { rideId?: string };
 type PassengerRegistrationWithId = PassengerRegistrationData & {
   waitlistPassengerId?: string;
@@ -25,143 +46,6 @@ type RegistrationWithId = (
   | RideRegistrationWithId
   | PassengerRegistrationWithId
 ) & { intent?: "offer" | "join" | null };
-import { Toast } from "../../../src/components/Toast";
-import { getDatabase, ref, remove, push, set } from "firebase/database";
-import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../../../src/styles/colors";
-import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
-import { Dialog } from "../../../src/components/Dialog";
-
-// Field configs for ride and passenger registration
-const luggageOptions = [
-  { label: "Small", value: "small" },
-  { label: "Medium", value: "medium" },
-  { label: "Large", value: "large" },
-];
-
-const rideFields = [
-  { key: "date", label: "Departure Date", type: "date", required: true },
-  {
-    key: "isFlexibleTime",
-    label: "Flexible Departure Time",
-    type: "checkbox",
-    default: false,
-  },
-  // Time fields will be conditionally rendered in RegistrationModal
-  {
-    key: "departureTimeStart",
-    label: "Departure Time Start",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime === true,
-  },
-  {
-    key: "departureTimeEnd",
-    label: "Departure Time End",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime === true,
-  },
-  {
-    key: "departureTime",
-    label: "Departure Time",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime !== true,
-  },
-  {
-    key: "seatsTotal",
-    label: "Seats Available",
-    type: "number",
-    required: true,
-    // default is set only in RegistrationModal
-  },
-  {
-    key: "luggageSpace",
-    label: "Luggage Space",
-    type: "dropdown",
-    options: luggageOptions,
-    default: "medium",
-  },
-  {
-    key: "preferToDrive",
-    label: "I prefer to drive",
-    type: "checkbox",
-    default: true,
-  },
-  {
-    key: "canDrive",
-    label: "I can drive",
-    type: "checkbox",
-    default: false,
-    showIf: (values: any) => values.preferToDrive === false,
-  },
-  { key: "notes", label: "Notes", type: "multiline_text" },
-  { key: "name", label: "Name", type: "text", required: true },
-  {
-    key: "phone",
-    label: "Phone",
-    type: "phone",
-    placeholder: "Enter your phone (or email below)",
-  },
-  {
-    key: "email",
-    label: "Email",
-    type: "email",
-    placeholder: "Enter your email (or phone above)",
-  },
-];
-
-const passengerFields = [
-  { key: "date", label: "Departure Date", type: "date", required: true },
-  {
-    key: "isFlexibleTime",
-    label: "Flexible Departure",
-    type: "checkbox",
-    default: false,
-  },
-  {
-    key: "departureTimeStart",
-    label: "Departure Time Start",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime === true,
-  },
-  {
-    key: "departureTimeEnd",
-    label: "Departure Time End",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime === true,
-  },
-  {
-    key: "departureTime",
-    label: "Departure Time",
-    type: "time",
-    required: true,
-    showIf: (values: any) => values.isFlexibleTime !== true,
-  },
-  {
-    key: "canDrive",
-    label: "I can drive if needed",
-    type: "checkbox",
-    default: false,
-  },
-  { key: "notes", label: "Notes", type: "multiline_text" },
-  { key: "name", label: "Name", type: "text", required: true },
-  {
-    key: "phone",
-    label: "Phone",
-    type: "phone",
-    placeholder: "Enter your phone (or email below)",
-  },
-  {
-    key: "email",
-    label: "Email",
-    type: "email",
-    placeholder: "Enter your email (or phone above)",
-  },
-];
 const MatchingScreen: React.FC = () => {
   const { width: windowWidth } = useWindowDimensions();
   // Responsive width logic: 65% of window width if >= 768px, else 100%
@@ -170,36 +54,63 @@ const MatchingScreen: React.FC = () => {
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [userRegistration, setUserRegistration] =
     useState<RegistrationWithId | null>(null);
+  const [modalInitialValues, setModalInitialValues] = useState<any>(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
-    // Check if user has existing registration
-    // If no registration exists, open registration modal (no dialog on load)
-    const hasExistingRegistration = checkForExistingRegistration();
-    if (!hasExistingRegistration) {
+    // On mount, check localStorage for registration and fetch from Firebase if needed
+    const carpoolIdStr = Array.isArray(carpoolId) ? carpoolId[0] : carpoolId;
+    let regStr = null;
+    if (typeof window !== "undefined") {
+      regStr = localStorage.getItem(`registration_${carpoolIdStr}`);
+    }
+    if (regStr) {
+      try {
+        const reg = JSON.parse(regStr);
+        // If we have a registration id, fetch the latest from Firebase
+        const db = getDatabase();
+        let path = null;
+        if (reg.rideId) {
+          path = `carpools/${carpoolIdStr}/rides/${reg.rideId}`;
+        } else if (reg.waitlistPassengerId) {
+          path = `carpools/${carpoolIdStr}/waitlist/${reg.waitlistPassengerId}`;
+        }
+        if (path) {
+          const regRef = ref(db, path);
+          onValue(
+            regRef,
+            (snapshot) => {
+              const val = snapshot.val();
+              if (val) {
+                setUserRegistration(val);
+                // Update localStorage with latest
+                if (typeof window !== "undefined") {
+                  localStorage.setItem(
+                    `registration_${carpoolIdStr}`,
+                    JSON.stringify(val)
+                  );
+                }
+              } else {
+                setUserRegistration(null);
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem(`registration_${carpoolIdStr}`);
+                }
+              }
+            },
+            { onlyOnce: true }
+          );
+        } else {
+          setUserRegistration(reg);
+        }
+      } catch {
+        setUserRegistration(null);
+      }
+    } else {
       setShowRegistrationModal(true);
     }
   }, []);
-
-  const checkForExistingRegistration = (): boolean => {
-    // This would check Firebase for existing user registration
-    // For now, we'll check local storage
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(`registration_${carpoolId}`);
-      if (saved) {
-        try {
-          const parsed: RegistrationWithId = JSON.parse(saved);
-          setUserRegistration(parsed);
-          return true;
-        } catch (error) {
-          console.error("Failed to load registration:", error);
-        }
-      }
-    }
-    return false;
-  };
 
   // Save registration to Firebase and local storage, ensuring id is stored
   const handleRegistrationSubmit = async (
@@ -210,17 +121,38 @@ const MatchingScreen: React.FC = () => {
     let idKey = null;
     let firebasePath = "";
     let registrationToSave: RegistrationWithId = { ...data, intent };
+    const carpoolIdStr = Array.isArray(carpoolId) ? carpoolId[0] : carpoolId;
+
+    // If editing, delete the old registration first
+    if (userRegistration) {
+      let oldPath = "";
+      if ("rideId" in userRegistration && userRegistration.rideId) {
+        oldPath = `carpools/${carpoolIdStr}/rides/${userRegistration.rideId}`;
+      } else if (
+        "waitlistPassengerId" in userRegistration && userRegistration.waitlistPassengerId
+      ) {
+        oldPath = `carpools/${carpoolIdStr}/waitlist/${userRegistration.waitlistPassengerId}`;
+      }
+      if (oldPath) {
+        try {
+          await remove(ref(db, oldPath));
+        } catch (e) {
+          console.error("Failed to delete old registration from Firebase", e);
+        }
+      }
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(`registration_${carpoolIdStr}`);
+      }
+    }
+
     if (intent === "offer") {
-      // Save as ride
-      firebasePath = `carpools/${carpoolId}/rides`;
+      firebasePath = `carpools/${carpoolIdStr}/rides`;
       const newRef = push(ref(db, firebasePath));
       idKey = newRef.key;
-      // Add id to registration before writing to Firebase
       registrationToSave = { ...registrationToSave, rideId: idKey };
       await set(newRef, registrationToSave);
     } else if (intent === "join") {
-      // Save as waitlist
-      firebasePath = `carpools/${carpoolId}/waitlist`;
+      firebasePath = `carpools/${carpoolIdStr}/waitlist`;
       const newRef = push(ref(db, firebasePath));
       idKey = newRef.key;
       registrationToSave = {
@@ -231,24 +163,19 @@ const MatchingScreen: React.FC = () => {
     }
     if (typeof window !== "undefined") {
       localStorage.setItem(
-        `registration_${carpoolId}`,
+        `registration_${carpoolIdStr}`,
         JSON.stringify(registrationToSave)
       );
     }
     setUserRegistration(registrationToSave);
     setShowRegistrationModal(false);
     showToast(
+      setToastMessage,
+      setToastVisible,
       intent === "offer"
         ? "Ride offer submitted successfully!"
         : "Waitlist registration submitted successfully!"
     );
-    // Registration is now saved with id in both Firebase and local storage
-  };
-
-  const showToast = (message: string) => {
-    setToastMessage(message);
-    setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 3000);
   };
 
   const mainTabs = [
@@ -264,20 +191,68 @@ const MatchingScreen: React.FC = () => {
   const [allRegistrationsActiveTab, setAllRegistrationsActiveTab] =
     useState("rides");
 
+  // State for all rides and waitlist
+  const [rides, setRides] = useState<RideRegistrationWithId[]>([]);
+  const [waitlist, setWaitlist] = useState<PassengerRegistrationWithId[]>([]);
+
+  // Fetch all rides and waitlist when All Registrations tab is active
+  useEffect(() => {
+    if (activeTab !== "allRegistrations") return;
+    const db = getDatabase();
+    const ridesRef = ref(db, `carpools/${carpoolId}/rides`);
+    const waitlistRef = ref(db, `carpools/${carpoolId}/waitlist`);
+
+    const handleRides = (snapshot: any) => {
+      const val = snapshot.val();
+      if (val) {
+        setRides(
+          Object.entries(val).map(([rideId, data]: [string, any]) => ({
+            ...data,
+            rideId,
+          }))
+        );
+      } else {
+        setRides([]);
+      }
+    };
+    const handleWaitlist = (snapshot: any) => {
+      const val = snapshot.val();
+      if (val) {
+        setWaitlist(
+          Object.entries(val).map(
+            ([waitlistPassengerId, data]: [string, any]) => ({
+              ...data,
+              waitlistPassengerId,
+            })
+          )
+        );
+      } else {
+        setWaitlist([]);
+      }
+    };
+    onValue(ridesRef, handleRides);
+    onValue(waitlistRef, handleWaitlist);
+    return () => {
+      off(ridesRef, "value", handleRides);
+      off(waitlistRef, "value", handleWaitlist);
+    };
+  }, [activeTab, carpoolId]);
+
   // Delete registration from Firebase and local storage
   const handleDeleteRegistration = async () => {
     if (!userRegistration) return;
     const db = getDatabase();
     let firebasePath = "";
     let id: string | undefined = undefined;
+    const carpoolIdStr = Array.isArray(carpoolId) ? carpoolId[0] : carpoolId;
     if ("rideId" in userRegistration && userRegistration.rideId) {
-      firebasePath = `carpools/${carpoolId}/rides/${userRegistration.rideId}`;
+      firebasePath = `carpools/${carpoolIdStr}/rides/${userRegistration.rideId}`;
       id = userRegistration.rideId;
     } else if (
       "waitlistPassengerId" in userRegistration &&
       userRegistration.waitlistPassengerId
     ) {
-      firebasePath = `carpools/${carpoolId}/waitlist/${userRegistration.waitlistPassengerId}`;
+      firebasePath = `carpools/${carpoolIdStr}/waitlist/${userRegistration.waitlistPassengerId}`;
       id = userRegistration.waitlistPassengerId;
     }
     if (firebasePath && id) {
@@ -288,89 +263,46 @@ const MatchingScreen: React.FC = () => {
       }
     }
     if (typeof window !== "undefined") {
-      localStorage.removeItem(`registration_${carpoolId}`);
+      localStorage.removeItem(`registration_${carpoolIdStr}`);
     }
     setUserRegistration(null);
-    showToast("Registration deleted.");
+    showToast(setToastMessage, setToastVisible, "Registration deleted.");
   };
 
-  const renderMyRegistration = () => {
-    return (
-      <View style={getResponsiveContentStyle(windowWidth)}>
-        {!userRegistration ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>No Registration Yet</Text>
-            <Text style={styles.emptyStateText}>
-              Create your registration to start finding carpool matches
-            </Text>
-            <BigButton
-              title="Register Your Departure"
-              onPress={() => setShowRegistrationModal(true)}
-              style={styles.registerButton}
-            />
-          </View>
-        ) : (
-          <View style={styles.registrationCard}>
-            {/* Trash icon in top-right corner */}
-            <View
-              style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
-            >
-              <Ionicons
-                name="trash"
-                size={24}
-                color={colors.text.secondary}
-                onPress={handleDeleteRegistration}
-                accessibilityLabel="Delete registration"
-              />
-            </View>
-            <Text style={styles.cardTitle}>Your Registration</Text>
-            <View style={styles.registrationDetails}>
-              <Text style={styles.detailLabel}>
-                Name:{" "}
-                <Text style={styles.detailValue}>{userRegistration.name}</Text>
-              </Text>
-              <Text style={styles.detailLabel}>
-                Date:{" "}
-                <Text style={styles.detailValue}>{userRegistration.date}</Text>
-              </Text>
-              <Text style={styles.detailLabel}>
-                Time:{" "}
-                <Text style={styles.detailValue}>
-                  {userRegistration.isFlexibleTime
-                    ? `${userRegistration.departureTimeStart} - ${userRegistration.departureTimeEnd}`
-                    : userRegistration.departureTimeStart}
-                </Text>
-              </Text>
-              {(userRegistration as RideRegistrationData).seatsTotal && (
-                <Text style={styles.detailLabel}>
-                  Seats:{" "}
-                  <Text style={styles.detailValue}>
-                    {(userRegistration as RideRegistrationData).seatsTotal}
-                  </Text>
-                </Text>
-              )}
-              {userRegistration.notes && (
-                <Text style={styles.detailLabel}>
-                  Notes:{" "}
-                  <Text style={styles.detailValue}>
-                    {userRegistration.notes}
-                  </Text>
-                </Text>
-              )}
-            </View>
-            <BigButton
-              title="Edit Registration"
-              onPress={() => setShowRegistrationModal(true)}
-              variant="secondary"
-              style={styles.editButton}
-            />
-          </View>
-        )}
-      </View>
-    );
+  const handleEditRegistration = () => {
+    setModalInitialValues(userRegistration);
+    setShowRegistrationModal(true);
   };
+
+  const renderMyRegistration = () => (
+    <View style={styles.container}>
+      {!userRegistration ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateTitle}>No Registration Yet</Text>
+          <Text style={styles.emptyStateText}>
+            Create your registration to start finding carpool matches
+          </Text>
+          <BigButton
+            title="Register Your Departure"
+            onPress={() => setShowRegistrationModal(true)}
+            style={styles.registerButton}
+          />
+        </View>
+      ) : (
+        <RegistrationCard
+          registration={userRegistration}
+          onDelete={handleDeleteRegistration}
+          onEdit={handleEditRegistration}
+          isRide={"seatsTotal" in userRegistration}
+          styles={styles}
+        />
+      )}
+    </View>
+  );
 
   const renderAllRegistrations = () => {
+    const isRides = allRegistrationsActiveTab === "rides";
+    const list = isRides ? rides : waitlist;
     return (
       <>
         <TabMenu
@@ -378,27 +310,12 @@ const MatchingScreen: React.FC = () => {
           activeTab={allRegistrationsActiveTab}
           onTabPress={setAllRegistrationsActiveTab}
         />
-        <View style={getResponsiveContentStyle(windowWidth)}>
-          <View style={styles.allRegistrationsContainer}>
-            {allRegistrationsActiveTab === "rides" ? (
-              <View style={styles.listContainer}>
-                <Text style={styles.listTitle}>Available Rides</Text>
-                <Text style={styles.emptyListText}>
-                  No rides available yet. Be the first to offer a ride!
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.listContainer}>
-                <Text style={styles.listTitle}>
-                  Passengers Looking for Rides
-                </Text>
-                <Text style={styles.emptyListText}>
-                  No passengers in waitlist yet.
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
+        <RegistrationList
+          registrations={list}
+          isRide={isRides}
+          styles={styles}
+          windowWidth={windowWidth}
+        />
       </>
     );
   };
@@ -423,6 +340,7 @@ const MatchingScreen: React.FC = () => {
         visible={showRegistrationModal}
         onClose={() => {
           setShowRegistrationModal(false);
+          setModalInitialValues(null);
           // Only show dialog if user has not registered yet
           if (!userRegistration) {
             setShowDialog(true);
@@ -432,6 +350,7 @@ const MatchingScreen: React.FC = () => {
         autoOpen={!userRegistration}
         rideFields={rideFields}
         passengerFields={passengerFields}
+        initialValues={modalInitialValues}
       />
 
       <View style={{ alignItems: "center", justifyContent: "center" }}>
