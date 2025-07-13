@@ -40,7 +40,8 @@ export function RegistrationCard({
       // @ts-ignore
       const { DateTime } = require("luxon");
       if (typeof depTime === "number") return depTime;
-      if (typeof depTime === "string" && /^\d+$/.test(depTime)) return parseInt(depTime, 10);
+      if (typeof depTime === "string" && /^\d+$/.test(depTime))
+        return parseInt(depTime, 10);
       const dt = DateTime.fromISO(depTime, { zone: timeZone });
       if (dt.isValid) return dt.toMillis();
       return null;

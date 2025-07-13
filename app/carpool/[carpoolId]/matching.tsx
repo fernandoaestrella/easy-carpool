@@ -335,7 +335,10 @@ const MatchingScreen: React.FC = () => {
     if (!refTime) return "-";
     // Use formatTimeWithZone from registrationUtils
     // @ts-ignore
-    return require("../../../src/utils/registrationUtils").formatTimeWithZone(refTime, carpoolTimeZone);
+    return require("../../../src/utils/registrationUtils").formatTimeWithZone(
+      refTime,
+      carpoolTimeZone
+    );
   };
 
   // Helper to get the registration's departure time (fixed or flexible start)
@@ -357,7 +360,8 @@ const MatchingScreen: React.FC = () => {
       // @ts-ignore
       const { DateTime } = require("luxon");
       if (typeof refTime === "number") return refTime;
-      if (typeof refTime === "string" && /^\d+$/.test(refTime)) return parseInt(refTime, 10);
+      if (typeof refTime === "string" && /^\d+$/.test(refTime))
+        return parseInt(refTime, 10);
       const dt = DateTime.fromISO(refTime, { zone: carpoolTimeZone });
       if (dt.isValid) return dt.toMillis();
       return null;
@@ -374,7 +378,8 @@ const MatchingScreen: React.FC = () => {
       // @ts-ignore
       const { DateTime } = require("luxon");
       if (typeof depTime === "number") return depTime;
-      if (typeof depTime === "string" && /^\d+$/.test(depTime)) return parseInt(depTime, 10);
+      if (typeof depTime === "string" && /^\d+$/.test(depTime))
+        return parseInt(depTime, 10);
       const dt = DateTime.fromISO(depTime, { zone: carpoolTimeZone });
       if (dt.isValid) return dt.toMillis();
       return null;
@@ -415,8 +420,15 @@ const MatchingScreen: React.FC = () => {
       <>
         {/* Info line about sorting */}
         <View style={{ marginBottom: 8, marginTop: 8 }}>
-          <Text style={{ textAlign: "center", color: styles.detailLabel.color, fontSize: 15 }}>
-            Registrations sorted by those closest to your departure time of {userDepartureTimeStr}
+          <Text
+            style={{
+              textAlign: "center",
+              color: styles.detailLabel.color,
+              fontSize: 15,
+            }}
+          >
+            Registrations sorted by those closest to your departure time of{" "}
+            {userDepartureTimeStr}
           </Text>
         </View>
         <TabMenu

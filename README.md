@@ -77,7 +77,6 @@ app/
 └── +not-found.tsx     # 404 page for invalid URLs
 ```
 
-
 ### All Registrations Sorting & Time Difference
 
 In the All Registrations tab, the app sorts all ride and waitlist registrations by how close their departure time is to your own registered departure time. This is done as follows:
