@@ -27,6 +27,7 @@ import {
   passengerFields,
 } from "../../../src/data/registrationFields";
 import { RegistrationCard } from "../../../src/components/RegistrationCard";
+import { MyRegistrationCard } from "../../../src/components/MyRegistrationCard";
 import { RegistrationList } from "../../../src/components/RegistrationList";
 import {
   checkForExistingRegistration,
@@ -306,7 +307,7 @@ const MatchingScreen: React.FC = () => {
           />
         </View>
       ) : (
-        <RegistrationCard
+        <MyRegistrationCard
           registration={userRegistration}
           onDelete={handleDeleteRegistration}
           onEdit={handleEditRegistration}

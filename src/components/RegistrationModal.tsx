@@ -61,7 +61,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         const pad = (n: number) => n.toString().padStart(2, "0");
         const nowStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
         const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-        const oneHourLaterStr = `${pad(oneHourLater.getHours())}:${pad(oneHourLater.getMinutes())}`;
+        const oneHourLaterStr = `${pad(oneHourLater.getHours())}:${pad(
+          oneHourLater.getMinutes()
+        )}`;
         setFormValues((prev: any) => ({
           ...prev,
           departureTimeStart: prev.departureTimeStart || nowStr,
