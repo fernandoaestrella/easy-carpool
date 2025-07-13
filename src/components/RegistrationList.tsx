@@ -40,6 +40,22 @@ export function RegistrationList({
                 styles={styles}
                 timeZone={timeZone}
                 userReferenceDepartureTimeMs={userReferenceDepartureTimeMs}
+                showDetailsOnClick={true}
+                onRegisterPassenger={(
+                  name: string,
+                  email: string,
+                  phone: string
+                ) => {
+                  // TODO: Implement registration logic in parent if needed
+                  // This is a placeholder for now
+                  console.log(
+                    "Register as passenger:",
+                    name,
+                    email,
+                    phone,
+                    reg
+                  );
+                }}
               />
             ))
           )}

@@ -1,11 +1,12 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import RegistrationDetailsModal from "./RegistrationDetailsModal";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
 import { BigButton } from "./BigButton";
 import { TimeDifference } from "./TimeDifference";
 
-import { formatTimeWithZone } from "../utils/registrationUtils";
+import { TimeString } from "./TimeString";
 
 export function RegistrationCard({
   registration,
@@ -15,6 +16,9 @@ export function RegistrationCard({
   styles,
   timeZone,
   userReferenceDepartureTimeMs,
+  showDetailsOnClick = false,
+  onRegisterPassenger,
+  ...rest
 }: {
   registration: any;
   onDelete?: () => void;
@@ -23,7 +27,11 @@ export function RegistrationCard({
   styles: any;
   timeZone: string;
   userReferenceDepartureTimeMs?: number | null;
+  showDetailsOnClick?: boolean;
+  onRegisterPassenger?: (name: string, email: string, phone: string) => void;
+  [key: string]: any;
 }) {
+  const [detailsVisible, setDetailsVisible] = useState(false);
   // Debug: log the raw time values
   console.log("RegistrationCard times:", {
     departureTimeStart: registration.departureTimeStart,
@@ -50,7 +58,7 @@ export function RegistrationCard({
     }
   };
 
-  return (
+  const CardContent = (
     <View style={styles.registrationCard}>
       {onDelete && (
         <View style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
@@ -93,24 +101,39 @@ export function RegistrationCard({
           <Text style={styles.detailLabel}>
             Time Range:{" "}
             <Text style={styles.detailValue}>
-              {registration.departureTimeStart
-                ? formatTimeWithZone(registration.departureTimeStart, timeZone)
-                : "-"}
+              {registration.departureTimeStart ? (
+                <TimeString
+                  time={registration.departureTimeStart}
+                  timeZone={timeZone}
+                />
+              ) : (
+                "-"
+              )}
               {registration.departureTimeStart && registration.departureTimeEnd
                 ? " - "
                 : ""}
-              {registration.departureTimeEnd
-                ? formatTimeWithZone(registration.departureTimeEnd, timeZone)
-                : "-"}
+              {registration.departureTimeEnd ? (
+                <TimeString
+                  time={registration.departureTimeEnd}
+                  timeZone={timeZone}
+                />
+              ) : (
+                "-"
+              )}
             </Text>
           </Text>
         ) : (
           <Text style={styles.detailLabel}>
             Departure Time:{" "}
             <Text style={styles.detailValue}>
-              {registration.fixedDepartureTime
-                ? formatTimeWithZone(registration.fixedDepartureTime, timeZone)
-                : "-"}
+              {registration.fixedDepartureTime ? (
+                <TimeString
+                  time={registration.fixedDepartureTime}
+                  timeZone={timeZone}
+                />
+              ) : (
+                "-"
+              )}
             </Text>
           </Text>
         )}
@@ -175,5 +198,30 @@ export function RegistrationCard({
         )}
       </View>
     </View>
+  );
+  return (
+    <>
+      {showDetailsOnClick ? (
+        <TouchableOpacity
+          onPress={() => setDetailsVisible(true)}
+          activeOpacity={0.8}
+          {...rest}
+        >
+          {CardContent}
+        </TouchableOpacity>
+      ) : (
+        CardContent
+      )}
+      {showDetailsOnClick && (
+        <RegistrationDetailsModal
+          visible={detailsVisible}
+          onClose={() => setDetailsVisible(false)}
+          registration={registration}
+          isRide={!!isRide}
+          timeZone={timeZone}
+          onRegisterPassenger={onRegisterPassenger}
+        />
+      )}
+    </>
   );
 }

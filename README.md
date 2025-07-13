@@ -228,6 +228,13 @@ The app includes a delightful 404 page with:
 
 When a user edits their registration, the app deletes the previous registration from both Firebase Realtime Database and the browser's localStorage before saving the new registration. This ensures only the latest registration is kept and shown. Registration data is always loaded from localStorage (and refreshed from Firebase if needed) to persist across browser sessions.
 
+**Timezone Handling:**
+
+- The carpool's timezone (e.g., "America/Toronto") is stored only in the carpool object, not in individual ride or passenger registrations.
+- When displaying registration details (e.g., in modals or cards), the carpool timezone is passed as a prop from the parent (carpool) context down to all registration detail components.
+- This ensures all time and date displays are shown in the correct timezone, even though the registration objects themselves do not contain a timezone field.
+- If you add new components that display registration times, ensure they receive the carpool timezone as a prop.
+
 ---
 
 ### Form and FormField Components

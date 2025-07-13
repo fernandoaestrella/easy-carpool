@@ -1,3 +1,4 @@
+import { colors } from "../styles/colors";
 import React from "react";
 import { View, Text } from "react-native";
 
@@ -54,7 +55,7 @@ export const TimeDifference: React.FC<TimeDifferenceProps> = ({
   }
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Text style={{ color: "#888" }}>{text}</Text>
+      <Text style={{ color: colors.text.tertiary }}>{text}</Text>
     </View>
   );
 };

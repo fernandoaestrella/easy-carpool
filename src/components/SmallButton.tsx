@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 2,
+    marginVertical: 8,
   },
   buttonDisabled: {
     backgroundColor: colors.neutral.tertiary,
