@@ -5,19 +5,29 @@ import { colors } from "../styles/colors";
 import { BigButton } from "./BigButton";
 import { TimeDifference } from "./TimeDifference";
 
+import { formatTimeWithZone } from "../utils/registrationUtils";
+
 export function RegistrationCard({
   registration,
   onDelete,
   onEdit,
   isRide,
   styles,
+  timeZone,
 }: {
   registration: any;
   onDelete?: () => void;
   onEdit?: () => void;
   isRide?: boolean;
   styles: any;
+  timeZone: string;
 }) {
+  // Debug: log the raw time values
+  console.log("RegistrationCard times:", {
+    departureTimeStart: registration.departureTimeStart,
+    departureTimeEnd: registration.departureTimeEnd,
+    name: registration.name,
+  });
   return (
     <View style={styles.registrationCard}>
       {onDelete && (
@@ -33,19 +43,7 @@ export function RegistrationCard({
       )}
       <Text style={styles.cardTitle}>{registration.name}</Text>
       <View style={styles.registrationDetails}>
-        <Text style={styles.detailLabel}>
-          Date: <Text style={styles.detailValue}>{registration.date}</Text>
-        </Text>
-        <Text style={styles.detailLabel}>
-          Time:{" "}
-          <Text style={styles.detailValue}>
-            {registration.isFlexibleTime
-              ? `${registration.departureTimeStart ?? ""} - ${
-                  registration.departureTimeEnd ?? ""
-                }`
-              : registration.departureTimeStart ?? ""}
-          </Text>
-        </Text>
+        {/* 1. Time Difference (always first) */}
         <TimeDifference
           start={
             registration.isFlexibleTime
@@ -56,26 +54,116 @@ export function RegistrationCard({
             registration.isFlexibleTime ? registration.departureTimeEnd : null
           }
         />
-        {isRide && registration.seatsTotal && (
+
+        {/* 2. Departure Date */}
+        {registration.date && (
+          <Text style={styles.detailLabel}>
+            Date: <Text style={styles.detailValue}>{registration.date}</Text>
+          </Text>
+        )}
+
+        {/* 3. Flexible Departure */}
+        {typeof registration.isFlexibleTime === "boolean" && (
+          <Text style={styles.detailLabel}>
+            Flexible Departure:{" "}
+            <Text style={styles.detailValue}>
+              {registration.isFlexibleTime ? "Yes" : "No"}
+            </Text>
+          </Text>
+        )}
+
+        {/* 4. Departure Time or Range */}
+        {registration.isFlexibleTime ? (
+          <Text style={styles.detailLabel}>
+            Time Range:{" "}
+            <Text style={styles.detailValue}>
+              {registration.departureTimeStart
+                ? formatTimeWithZone(registration.departureTimeStart, timeZone)
+                : "-"}
+              {registration.departureTimeStart && registration.departureTimeEnd
+                ? " - "
+                : ""}
+              {registration.departureTimeEnd
+                ? formatTimeWithZone(registration.departureTimeEnd, timeZone)
+                : "-"}
+            </Text>
+          </Text>
+        ) : (
+          <Text style={styles.detailLabel}>
+            Time:{" "}
+            <Text style={styles.detailValue}>
+              {registration.departureTimeStart
+                ? formatTimeWithZone(registration.departureTimeStart, timeZone)
+                : "-"}
+            </Text>
+          </Text>
+        )}
+
+        {/* 5. Seats Available (if ride) */}
+        {isRide && registration.seatsTotal !== undefined && (
           <Text style={styles.detailLabel}>
             Seats:{" "}
             <Text style={styles.detailValue}>{registration.seatsTotal}</Text>
           </Text>
         )}
+
+        {/* 6. Luggage Space (if ride) */}
+        {isRide && registration.luggageSpace && (
+          <Text style={styles.detailLabel}>
+            Luggage Space:{" "}
+            <Text style={styles.detailValue}>{registration.luggageSpace}</Text>
+          </Text>
+        )}
+
+        {/* 7. I prefer to drive / I can drive if needed */}
+        {isRide && typeof registration.preferToDrive === "boolean" && (
+          <Text style={styles.detailLabel}>
+            Prefer to Drive:{" "}
+            <Text style={styles.detailValue}>
+              {registration.preferToDrive ? "Yes" : "No"}
+            </Text>
+          </Text>
+        )}
+        {!isRide && typeof registration.canDrive === "boolean" && (
+          <Text style={styles.detailLabel}>
+            Can Drive if Needed:{" "}
+            <Text style={styles.detailValue}>
+              {registration.canDrive ? "Yes" : "No"}
+            </Text>
+          </Text>
+        )}
+
+        {/* 8. Notes */}
         {registration.notes && (
           <Text style={styles.detailLabel}>
             Notes: <Text style={styles.detailValue}>{registration.notes}</Text>
           </Text>
         )}
+
+        {/* 9. Contact Info */}
+        {registration.contact && (
+          <View>
+            <Text style={styles.detailLabel}>
+              Email:{" "}
+              <Text style={styles.detailValue}>
+                {registration.contact.email || "-"}
+              </Text>
+            </Text>
+            <Text style={styles.detailLabel}>
+              Phone:{" "}
+              <Text style={styles.detailValue}>
+                {registration.contact.phone || "-"}
+              </Text>
+            </Text>
+          </View>
+        )}
       </View>
-      {onEdit && (
-        <BigButton
-          title="Edit Registration"
-          onPress={onEdit}
-          variant="secondary"
-          style={styles.editButton}
-        />
-      )}
+      <BigButton
+        title="Edit Registration"
+        onPress={onEdit ? onEdit : () => {}}
+        variant="secondary"
+        style={styles.editButton}
+      />
     </View>
   );
 }

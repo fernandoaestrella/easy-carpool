@@ -59,10 +59,25 @@ const MatchingScreen: React.FC = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [carpoolTimeZone, setCarpoolTimeZone] = useState<string>("");
 
   useEffect(() => {
-    // On mount, check localStorage for registration and fetch from Firebase if needed
+    // On mount, fetch carpool object to get timezone, and check localStorage for registration
     const carpoolIdStr = Array.isArray(carpoolId) ? carpoolId[0] : carpoolId;
+    const db = getDatabase();
+    // Fetch carpool object
+    const carpoolRef = ref(db, `carpools/${carpoolIdStr}`);
+    onValue(
+      carpoolRef,
+      (snapshot) => {
+        const carpool = snapshot.val();
+        if (carpool && carpool.timeZone) {
+          setCarpoolTimeZone(carpool.timeZone);
+        }
+      },
+      { onlyOnce: true }
+    );
+    // Check localStorage for registration and fetch from Firebase if needed
     let regStr = null;
     if (typeof window !== "undefined") {
       regStr = localStorage.getItem(`registration_${carpoolIdStr}`);
@@ -71,7 +86,6 @@ const MatchingScreen: React.FC = () => {
       try {
         const reg = JSON.parse(regStr);
         // If we have a registration id, fetch the latest from Firebase
-        const db = getDatabase();
         let path = null;
         if (reg.rideId) {
           path = `carpools/${carpoolIdStr}/rides/${reg.rideId}`;
@@ -298,6 +312,7 @@ const MatchingScreen: React.FC = () => {
           onEdit={handleEditRegistration}
           isRide={"seatsTotal" in userRegistration}
           styles={styles}
+          timeZone={carpoolTimeZone}
         />
       )}
     </View>
@@ -318,6 +333,7 @@ const MatchingScreen: React.FC = () => {
           isRide={isRides}
           styles={styles}
           windowWidth={windowWidth}
+          timeZone={carpoolTimeZone}
         />
       </>
     );
@@ -361,6 +377,7 @@ const MatchingScreen: React.FC = () => {
         rideFields={rideFields}
         passengerFields={passengerFields}
         initialValues={modalInitialValues}
+        timeZone={carpoolTimeZone}
       />
 
       <View style={{ alignItems: "center", justifyContent: "center" }}>

@@ -8,11 +8,13 @@ export function RegistrationList({
   isRide,
   styles,
   windowWidth,
+  timeZone,
 }: {
   registrations: any[];
   isRide: boolean;
   styles: any;
   windowWidth: number;
+  timeZone: string;
 }) {
   return (
     <View style={getResponsiveContentStyle(windowWidth)}>
@@ -34,6 +36,7 @@ export function RegistrationList({
                 registration={reg}
                 isRide={isRide}
                 styles={styles}
+                timeZone={timeZone}
               />
             ))
           )}

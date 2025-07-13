@@ -1,4 +1,5 @@
 import { colors } from "../styles/colors";
+import { getShortTimezoneAbbreviation } from "../utils/registrationUtils";
 
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -17,7 +18,6 @@ import { getResponsiveContentStyle } from "../styles/layout";
 import { Form } from "./Form";
 import { BigButton } from "./BigButton";
 
-
 interface RegistrationModalProps {
   visible: boolean;
   onClose: () => void;
@@ -26,6 +26,7 @@ interface RegistrationModalProps {
   rideFields: any[];
   passengerFields: any[];
   initialValues?: any;
+  timeZone: string;
 }
 
 export const RegistrationModal: React.FC<RegistrationModalProps> = ({
@@ -36,6 +37,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   rideFields,
   passengerFields,
   initialValues,
+  timeZone,
 }) => {
   // Get carpoolId from URL
   const { carpoolId } = useLocalSearchParams<{ carpoolId: string }>();
@@ -126,7 +128,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   };
 
   // Filter fields based on showIf (for conditional fields)
-  // Patch field configs to inject error messages for email/phone
+  // Patch field configs to inject error messages for email/phone and inject timezone into time field labels
   const getFields = () => {
     const fields =
       intent === "offer"
@@ -134,12 +136,28 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         : intent === "join"
         ? passengerFields
         : [];
+    const tzAbbr = getShortTimezoneAbbreviation(timeZone);
+    const tzLabel = timeZone
+      ? `${timeZone}${tzAbbr && tzAbbr !== "-" ? ", " + tzAbbr : ""}`
+      : "";
     return fields
       .filter((field) => !field.showIf || field.showIf(formValues))
       .map((field) => {
+        // Patch error messages for contact fields
         if (field.key === "email" || field.key === "phone") {
           const key = field.key as "email" | "phone";
           return { ...field, error: fieldErrors[key] };
+        }
+        // Patch label for time fields
+        if (
+          field.key === "departureTime" ||
+          field.key === "departureTimeStart" ||
+          field.key === "departureTimeEnd"
+        ) {
+          return {
+            ...field,
+            label: `${field.label} (${tzLabel})`,
+          };
         }
         return field;
       });
@@ -188,7 +206,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     : "Looking for a Ride"}
                 </Text>
                 {/* Hide Change button if a registration already exists (initialValues is present) */}
-                { !initialValues && (
+                {!initialValues && (
                   <TouchableOpacity
                     onPress={() => setIntent(null)}
                     style={styles.changeButton}
