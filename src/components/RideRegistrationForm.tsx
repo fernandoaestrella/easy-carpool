@@ -104,7 +104,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Select date",
         }}
         value={formData.date || ""}
-        onChangeText={(key, value) => updateField("date", value)}
+          onChangeValue={(key, value) => updateField("date", value)}
       />
 
       <View style={styles.switchRow}>
@@ -135,9 +135,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
               placeholder: "e.g., 9:00 AM",
             }}
             value={formData.departureTimeStart || ""}
-            onChangeText={(key, value) =>
-              updateField("departureTimeStart", value)
-            }
+          onChangeValue={(key, value) =>
+            updateField("departureTimeStart", value)
+          }
           />
           <FormField
             config={{
@@ -148,9 +148,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
               placeholder: "e.g., 2:00 PM",
             }}
             value={formData.departureTimeEnd || ""}
-            onChangeText={(key, value) =>
-              updateField("departureTimeEnd", value)
-            }
+          onChangeValue={(key, value) =>
+            updateField("departureTimeEnd", value)
+          }
           />
         </>
       ) : (
@@ -163,7 +163,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
             placeholder: "e.g., 10:30 AM",
           }}
           value={formData.departureTimeStart || ""}
-          onChangeText={(key, value) =>
+          onChangeValue={(key, value) =>
             updateField("departureTimeStart", value)
           }
         />
@@ -173,14 +173,12 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
         config={{
           key: "seatsTotal",
           label: "Seats Available",
-          type: "text",
+          type: "number",
           required: true,
           placeholder: "Number of seats",
         }}
-        value={formData.seatsTotal?.toString() || ""}
-        onChangeText={(key, value) =>
-          updateField("seatsTotal", parseInt(value) || 0)
-        }
+        value={formData.seatsTotal ?? 2}
+        onChangeValue={(key, value) => updateField("seatsTotal", value)}
       />
 
       <FormField
@@ -191,7 +189,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Small, Medium, or Large",
         }}
         value={formData.luggageSpace || ""}
-        onChangeText={(key, value) => updateField("luggageSpace", value)}
+          onChangeValue={(key, value) => updateField("luggageSpace", value)}
       />
 
       <View style={styles.switchRow}>
@@ -238,7 +236,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Additional information...",
         }}
         value={formData.notes || ""}
-        onChangeText={(key, value) => updateField("notes", value)}
+          onChangeValue={(key, value) => updateField("notes", value)}
       />
 
       <Text style={styles.sectionTitle}>Contact Information</Text>
@@ -251,9 +249,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           value={
             formData[field.key as keyof RideRegistrationData]?.toString() || ""
           }
-          onChangeText={(key, value) =>
-            updateField(key as keyof RideRegistrationData, value)
-          }
+            onChangeValue={(key, value) =>
+              updateField(key as keyof RideRegistrationData, value)
+            }
         />
       ))}
 

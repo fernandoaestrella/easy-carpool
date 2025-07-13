@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   DimensionValue,
 } from "react-native";
+import { getResponsiveContentStyle } from "../styles/layout";
 import { Form } from "./Form";
 import { BigButton } from "./BigButton";
 
@@ -32,22 +33,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   passengerFields,
 }) => {
   const { width: windowWidth } = useWindowDimensions();
-  // Responsive width logic: 65% of window width if >= 768px, else 100%
-  const getContentContainerStyle = (): {
-    width: DimensionValue;
-    alignSelf: "center";
-  } => {
-    if (windowWidth >= 768) {
-      return {
-        width: Math.round(windowWidth * 0.65),
-        alignSelf: "center",
-      };
-    }
-    return {
-      width: "100%" as DimensionValue,
-      alignSelf: "center",
-    };
-  };
   const [intent, setIntent] = useState<"offer" | "join" | null>(null);
   const [formValues, setFormValues] = useState<any>({});
 
@@ -134,7 +119,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            getContentContainerStyle(),
+            getResponsiveContentStyle(windowWidth),
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -233,9 +218,8 @@ const styles = StyleSheet.create({
   },
   intentHeaderCentered: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    width: "100%",
+    justifyContent: "center",
     marginBottom: 16,
   },
   selectedIntentCentered: {
@@ -243,13 +227,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.text.primary,
     textAlign: "center",
-    flex: 1,
   },
   changeButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
     backgroundColor: colors.neutral ? colors.neutral.tertiary : "#ccc",
+    marginLeft: 6,
   },
   changeButtonText: {
     color: colors.text.primary,

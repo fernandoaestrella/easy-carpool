@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   useWindowDimensions,
-  DimensionValue,
 } from "react-native";
+import { getResponsiveContentStyle } from "../../../src/styles/layout";
 import { useLocalSearchParams } from "expo-router";
 import { TabMenu } from "../../../src/components/TabMenu";
 import { BigButton } from "../../../src/components/BigButton";
@@ -117,21 +117,6 @@ const passengerFields = [
 const MatchingScreen: React.FC = () => {
   const { width: windowWidth } = useWindowDimensions();
   // Responsive width logic: 65% of window width if >= 768px, else 100%
-  const getContentContainerStyle = (): {
-    width: DimensionValue;
-    alignSelf: "center";
-  } => {
-    if (windowWidth >= 768) {
-      return {
-        width: Math.round(windowWidth * 0.65),
-        alignSelf: "center",
-      };
-    }
-    return {
-      width: "100%" as DimensionValue,
-      alignSelf: "center",
-    };
-  };
   const { carpoolId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("myRegistration");
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
@@ -225,7 +210,7 @@ const MatchingScreen: React.FC = () => {
 
   const renderMyRegistration = () => {
     return (
-      <View style={getContentContainerStyle()}>
+      <View style={getResponsiveContentStyle(windowWidth)}>
         {!userRegistration ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateTitle}>No Registration Yet</Text>
@@ -295,7 +280,7 @@ const MatchingScreen: React.FC = () => {
           activeTab={allRegistrationsActiveTab}
           onTabPress={setAllRegistrationsActiveTab}
         />
-        <View style={getContentContainerStyle()}>
+        <View style={getResponsiveContentStyle(windowWidth)}>
           <View style={styles.allRegistrationsContainer}>
             {allRegistrationsActiveTab === "rides" ? (
               <View style={styles.listContainer}>

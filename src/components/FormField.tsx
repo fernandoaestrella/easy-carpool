@@ -31,6 +31,9 @@ interface FormFieldProps {
   onChangeValue: (key: string, value: any) => void;
   error?: string;
   style?: ViewStyle;
+  min?: number;
+  max?: number;
+  default?: number;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -54,6 +57,95 @@ export const FormField: React.FC<FormFieldProps> = ({
   };
 
   const renderInput = () => {
+    // Number field with increment/decrement buttons
+    if (config.type === "number") {
+      const min = typeof config.min === "number" ? config.min : 1;
+      const max = typeof config.max === "number" ? config.max : 999;
+      const defaultValue = typeof config.default === "number" ? config.default : 2;
+      const [isFocused, setIsFocused] = React.useState(false);
+      // Allow any value while focused, coerce on blur
+      const handleBlur = () => {
+        setIsFocused(false);
+        let coerced = Number(value);
+        if (isNaN(coerced)) coerced = defaultValue;
+        if (coerced < min) coerced = min;
+        if (coerced > max) coerced = max;
+        if (coerced !== value) onChangeValue(config.key, coerced);
+      };
+      const handleChange = (text: string) => {
+        // Allow empty string for clearing
+        if (/^\d{0,3}$/.test(text)) {
+          onChangeValue(config.key, text === "" ? "" : Number(text));
+        }
+      };
+      const handleIncrement = () => {
+        let v = Number(value) || min;
+        if (v < max) onChangeValue(config.key, v + 1);
+      };
+      const handleDecrement = () => {
+        let v = Number(value) || min;
+        if (v > min) onChangeValue(config.key, v - 1);
+      };
+      return (
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: colors.interactive.primary,
+              color: "#fff",
+              fontSize: 24,
+              textAlign: "center",
+              textAlignVertical: "center",
+              marginRight: 8,
+              lineHeight: 36,
+              overflow: "hidden",
+            }}
+            onPress={handleDecrement}
+            accessibilityRole="button"
+            accessibilityLabel="Decrease"
+          >
+            -
+          </Text>
+          <TextInput
+            style={[
+              styles.input,
+              error && styles.inputError,
+              { width: 64, textAlign: "center" },
+            ]}
+            value={value === undefined || value === null ? "" : String(value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={handleBlur}
+            onChangeText={handleChange}
+            placeholder={config.placeholder}
+            keyboardType="numeric"
+            accessibilityLabel={config.label}
+            maxLength={3}
+          />
+          <Text
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: colors.interactive.primary,
+              color: "#fff",
+              fontSize: 24,
+              textAlign: "center",
+              textAlignVertical: "center",
+              marginLeft: 8,
+              lineHeight: 36,
+              overflow: "hidden",
+            }}
+            onPress={handleIncrement}
+            accessibilityRole="button"
+            accessibilityLabel="Increase"
+          >
+            +
+          </Text>
+        </View>
+      );
+    }
     if (config.type === "timezone") {
       return (
         <TimezoneSearchDropdown
@@ -91,6 +183,7 @@ export const FormField: React.FC<FormFieldProps> = ({
             padding: 12,
             fontSize: 16,
             border: focusBorder,
+            backgroundColor: colors.background.secondary,
           }}
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChangeValue(config.key, e.target.value)}
@@ -121,6 +214,7 @@ export const FormField: React.FC<FormFieldProps> = ({
             padding: 12,
             fontSize: 16,
             border: focusBorder,
+            backgroundColor: colors.background.secondary,
           }}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -140,6 +234,7 @@ export const FormField: React.FC<FormFieldProps> = ({
             padding: 12,
             fontSize: 16,
             border: focusBorder,
+            backgroundColor: colors.background.secondary,
           }}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -168,7 +263,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       );
     }
 
-    // phone, number, email, text
+    // phone, email, text
     // React Native TextInput does not support inputMode prop as a string; use keyboardType only.
     return (
       <TextInput
