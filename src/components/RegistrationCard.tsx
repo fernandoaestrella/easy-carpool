@@ -174,12 +174,6 @@ export function RegistrationCard({
           </View>
         )}
       </View>
-      <BigButton
-        title="Edit Registration"
-        onPress={onEdit ? onEdit : () => {}}
-        variant="secondary"
-        style={styles.editButton}
-      />
     </View>
   );
 }

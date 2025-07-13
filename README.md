@@ -1,3 +1,42 @@
+### Manual Cleanup of Expired Registrations (Spark/Any Plan)
+
+If you are on the Spark (free) plan or want to trigger cleanup manually, you can use the provided script:
+
+1. Download your Firebase service account key from the Firebase Console (Project Settings > Service Accounts > Generate new private key).
+2. Place the key file somewhere safe (e.g., `serviceAccountKey.json`).
+3. Install the Firebase Admin SDK if you haven't already:
+
+   ```powershell
+   npm install firebase-admin
+   ```
+
+4. Run the script:
+
+   ```powershell
+   node scripts/manualDeleteExpiredRegistrations.js path/to/serviceAccountKey.json
+   ```
+
+   This will delete all registrations whose `expiresAt` is in the past.
+
+**Note:** The script assumes registrations are stored under `/carpools/{carpoolId}/registrations/{registrationId}`. Adjust the script if your structure is different.
+
+> **Note:**
+> Scheduled Cloud Functions (such as the registration cleanup) require the Firebase Blaze (pay-as-you-go) plan. If you are on the Spark (free) plan, scheduled cleanup will not run. Your data will not be automatically deleted until you upgrade to Blaze and deploy the function.
+
+### Enabling Auto-Expiry After Upgrading to Blaze
+
+1. Upgrade your Firebase project to the Blaze plan in the [Firebase Console > Billing](https://console.firebase.google.com/project/_/usage/details).
+2. Make sure your `deleteExpiredRegistrations` function is present in your `functions/` directory and exported in `functions/index.js`.
+3. Deploy your functions again:
+
+   ```powershell
+   firebase deploy --only functions
+   ```
+
+4. The scheduled cleanup will now run automatically every 15 minutes.
+
+You can monitor function execution and logs in the Firebase Console under Functions > Logs.
+
 # Easy Carpool
 
 A carpooling app that facilitates finding carpool matches in the easiest way possible.
@@ -11,10 +50,58 @@ A carpooling app that facilitates finding carpool matches in the easiest way pos
 ## 🌟 Features
 
 - **No account creation needed** - Jump right in and start organizing carpools
-- **Automatic cleanup** - Ride registrations are automatically deleted after completion
+- **Automatic cleanup** - Ride registrations are automatically deleted 6 hours after their listed departure time (see [Registration Auto-Expiry](#registration-auto-expiry) below)
 - **Smart sorting** - Rides sorted by departure times closest to your intended time
 - **Easy contact sharing** - Copy all passenger contact info with a single click
 - **Real-time updates** - See changes instantly across all connected devices
+
+## 🕒 Registration Auto-Expiry
+
+Every registration is automatically deleted 6 hours after its listed departure time:
+
+- For fixed departures: 6 hours after the `fixedDepartureTime`.
+- For flexible departures: 6 hours after the end of the time range (`departureTimeEnd`).
+
+This is implemented by adding an `expiresAt` field (a UTC timestamp in ms) to each registration when it is created. A Firebase Cloud Function runs every 15 minutes and deletes any registration whose `expiresAt` is in the past.
+
+### How to Deploy the Cleanup Cloud Function
+
+1. **Install Firebase CLI and initialize functions** (if not already done):
+
+   ```powershell
+   npm install -g firebase-tools
+   firebase login
+   firebase init functions
+   ```
+
+2. **Copy the cleanup function**
+
+   Place the file `functions/deleteExpiredRegistrations.js` (see this repo) into your `functions/` directory.
+
+3. **Edit your `functions/index.js` or `functions/index.ts`**
+
+   Add the following line to export the function:
+
+   ```js
+   exports.deleteExpiredRegistrations =
+     require("./deleteExpiredRegistrations").deleteExpiredRegistrations;
+   ```
+
+4. **Deploy the function to Firebase**
+
+   ```powershell
+   firebase deploy --only functions
+   ```
+
+5. **Verify scheduled cleanup**
+
+   - The function will run every 15 minutes and remove expired registrations from the database.
+   - You can check logs in the [Firebase Console > Functions > Logs](https://console.firebase.google.com/) to confirm deletions.
+
+**Note:**
+
+- The function assumes registrations are stored under `/carpools/{carpoolId}/registrations/{registrationId}`. Adjust the path in `deleteExpiredRegistrations.js` if your structure is different.
+- Requires Node.js 16+ and Firebase Functions SDK.
 
 ## 🏃‍♂️ Running the App (Web Only)
 

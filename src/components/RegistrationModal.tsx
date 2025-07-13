@@ -152,22 +152,36 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
     // Map time fields to fixedDepartureTime or time range fields based on isFlexibleTime
     let submission = { ...values };
+    let baseDepartureTimeMs: number | null = null;
     if (typeof values.isFlexibleTime === "boolean") {
       if (values.isFlexibleTime) {
-        // Flexible: use departureTimeStart and departureTimeEnd, remove fixedDepartureTime
+        // Flexible: use departureTimeEnd for expiry, remove fixedDepartureTime
         submission = {
           ...submission,
           fixedDepartureTime: undefined,
         };
+        // Try to parse departureTimeEnd as ms since epoch
+        if (values.departureTimeEnd) {
+          baseDepartureTimeMs = parseTimeToMs(values.departureTimeEnd);
+        }
       } else {
-        // Not flexible: use fixedDepartureTime, remove departureTimeStart and departureTimeEnd
+        // Not flexible: use fixedDepartureTime for expiry, remove departureTimeStart and departureTimeEnd
         submission = {
           ...submission,
           fixedDepartureTime: values.departureTime || values.fixedDepartureTime,
           departureTimeStart: undefined,
           departureTimeEnd: undefined,
         };
+        if (submission.fixedDepartureTime) {
+          baseDepartureTimeMs = parseTimeToMs(submission.fixedDepartureTime);
+        }
       }
+    }
+    // Calculate expiresAt: 6 hours after baseDepartureTimeMs (if available)
+    let expiresAt: number | undefined = undefined;
+    if (baseDepartureTimeMs && !isNaN(baseDepartureTimeMs)) {
+      expiresAt = baseDepartureTimeMs + 6 * 60 * 60 * 1000;
+      submission.expiresAt = expiresAt;
     }
     // Remove all keys with undefined values (Firebase does not allow undefined)
     const cleanedSubmission = Object.fromEntries(
@@ -175,6 +189,36 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     );
     onSubmit(cleanedSubmission, intent);
   };
+
+  // Helper: parse time string (HH:mm or ISO or ms) to ms since epoch (UTC)
+  function parseTimeToMs(time: string | number): number | null {
+    if (!time) return null;
+    if (typeof time === "number") return time;
+    if (/^\d+$/.test(time)) return parseInt(time, 10);
+    // Try ISO string
+    try {
+      // @ts-ignore
+      const { DateTime } = require("luxon");
+      const dt = DateTime.fromISO(time, { zone: timeZone });
+      if (dt.isValid) return dt.toMillis();
+    } catch {}
+    // Try HH:mm (today)
+    if (/^\d{2}:\d{2}$/.test(time)) {
+      const [h, m] = time.split(":").map(Number);
+      const now = new Date();
+      const dt = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        h,
+        m,
+        0,
+        0
+      );
+      return dt.getTime();
+    }
+    return null;
+  }
 
   // Filter fields based on showIf (for conditional fields)
   // Patch field configs to inject error messages for email/phone and inject timezone into time field labels
