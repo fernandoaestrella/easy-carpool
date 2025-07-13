@@ -8,6 +8,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  useWindowDimensions,
+  DimensionValue,
 } from "react-native";
 import { Form } from "./Form";
 import { BigButton } from "./BigButton";
@@ -29,6 +31,23 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   rideFields,
   passengerFields,
 }) => {
+  const { width: windowWidth } = useWindowDimensions();
+  // Responsive width logic: 65% of window width if >= 768px, else 100%
+  const getContentContainerStyle = (): {
+    width: DimensionValue;
+    alignSelf: "center";
+  } => {
+    if (windowWidth >= 768) {
+      return {
+        width: Math.round(windowWidth * 0.65),
+        alignSelf: "center",
+      };
+    }
+    return {
+      width: "100%" as DimensionValue,
+      alignSelf: "center",
+    };
+  };
   const [intent, setIntent] = useState<"offer" | "join" | null>(null);
   const [formValues, setFormValues] = useState<any>({});
 
@@ -107,13 +126,16 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Register Your Departure</Text>
+          <Text style={styles.titleCentered}>Register Your Departure</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
         </View>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            getContentContainerStyle(),
+          ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -132,8 +154,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
             </View>
           ) : (
             <>
-              <View style={styles.intentHeader}>
-                <Text style={styles.selectedIntent}>
+              <View style={styles.intentHeaderCentered}>
+                <Text style={styles.selectedIntentCentered}>
                   {intent === "offer"
                     ? "Offering a Ride"
                     : "Looking for a Ride"}
@@ -177,10 +199,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     backgroundColor: colors.background.secondary,
   },
-  title: {
+  titleCentered: {
     fontSize: 24,
     fontWeight: "600",
     color: colors.text.primary,
+    textAlign: "center",
+    flex: 1,
   },
   closeButton: {
     width: 40,
@@ -207,17 +231,19 @@ const styles = StyleSheet.create({
   intentButton: {
     marginBottom: 0,
   },
-  intentHeader: {
+  intentHeaderCentered: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     width: "100%",
     marginBottom: 16,
   },
-  selectedIntent: {
+  selectedIntentCentered: {
     fontSize: 18,
     fontWeight: "600",
     color: colors.text.primary,
+    textAlign: "center",
+    flex: 1,
   },
   changeButton: {
     paddingHorizontal: 12,

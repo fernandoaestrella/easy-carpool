@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+  DimensionValue,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { TabMenu } from "../../../src/components/TabMenu";
 import { BigButton } from "../../../src/components/BigButton";
@@ -108,6 +115,23 @@ const passengerFields = [
   { key: "notes", label: "Notes", type: "multiline_text" },
 ];
 const MatchingScreen: React.FC = () => {
+  const { width: windowWidth } = useWindowDimensions();
+  // Responsive width logic: 65% of window width if >= 768px, else 100%
+  const getContentContainerStyle = (): {
+    width: DimensionValue;
+    alignSelf: "center";
+  } => {
+    if (windowWidth >= 768) {
+      return {
+        width: Math.round(windowWidth * 0.65),
+        alignSelf: "center",
+      };
+    }
+    return {
+      width: "100%" as DimensionValue,
+      alignSelf: "center",
+    };
+  };
   const { carpoolId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("myRegistration");
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
@@ -200,92 +224,99 @@ const MatchingScreen: React.FC = () => {
     useState("rides");
 
   const renderMyRegistration = () => {
-    if (!userRegistration) {
-      return (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>No Registration Yet</Text>
-          <Text style={styles.emptyStateText}>
-            Create your registration to start finding carpool matches
-          </Text>
-          <BigButton
-            title="Register Your Departure"
-            onPress={() => setShowRegistrationModal(true)}
-            style={styles.registerButton}
-          />
-        </View>
-      );
-    }
-
     return (
-      <View style={styles.registrationCard}>
-        <Text style={styles.cardTitle}>Your Registration</Text>
-        <View style={styles.registrationDetails}>
-          <Text style={styles.detailLabel}>
-            Name:{" "}
-            <Text style={styles.detailValue}>{userRegistration.name}</Text>
-          </Text>
-          <Text style={styles.detailLabel}>
-            Date:{" "}
-            <Text style={styles.detailValue}>{userRegistration.date}</Text>
-          </Text>
-          <Text style={styles.detailLabel}>
-            Time:{" "}
-            <Text style={styles.detailValue}>
-              {userRegistration.isFlexibleTime
-                ? `${userRegistration.departureTimeStart} - ${userRegistration.departureTimeEnd}`
-                : userRegistration.departureTimeStart}
+      <View style={getContentContainerStyle()}>
+        {!userRegistration ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateTitle}>No Registration Yet</Text>
+            <Text style={styles.emptyStateText}>
+              Create your registration to start finding carpool matches
             </Text>
-          </Text>
-          {(userRegistration as RideRegistrationData).seatsTotal && (
-            <Text style={styles.detailLabel}>
-              Seats:{" "}
-              <Text style={styles.detailValue}>
-                {(userRegistration as RideRegistrationData).seatsTotal}
+            <BigButton
+              title="Register Your Departure"
+              onPress={() => setShowRegistrationModal(true)}
+              style={styles.registerButton}
+            />
+          </View>
+        ) : (
+          <View style={styles.registrationCard}>
+            <Text style={styles.cardTitle}>Your Registration</Text>
+            <View style={styles.registrationDetails}>
+              <Text style={styles.detailLabel}>
+                Name:{" "}
+                <Text style={styles.detailValue}>{userRegistration.name}</Text>
               </Text>
-            </Text>
-          )}
-          {userRegistration.notes && (
-            <Text style={styles.detailLabel}>
-              Notes:{" "}
-              <Text style={styles.detailValue}>{userRegistration.notes}</Text>
-            </Text>
-          )}
-        </View>
-        <BigButton
-          title="Edit Registration"
-          onPress={() => setShowRegistrationModal(true)}
-          variant="secondary"
-          style={styles.editButton}
-        />
+              <Text style={styles.detailLabel}>
+                Date:{" "}
+                <Text style={styles.detailValue}>{userRegistration.date}</Text>
+              </Text>
+              <Text style={styles.detailLabel}>
+                Time:{" "}
+                <Text style={styles.detailValue}>
+                  {userRegistration.isFlexibleTime
+                    ? `${userRegistration.departureTimeStart} - ${userRegistration.departureTimeEnd}`
+                    : userRegistration.departureTimeStart}
+                </Text>
+              </Text>
+              {(userRegistration as RideRegistrationData).seatsTotal && (
+                <Text style={styles.detailLabel}>
+                  Seats:{" "}
+                  <Text style={styles.detailValue}>
+                    {(userRegistration as RideRegistrationData).seatsTotal}
+                  </Text>
+                </Text>
+              )}
+              {userRegistration.notes && (
+                <Text style={styles.detailLabel}>
+                  Notes:{" "}
+                  <Text style={styles.detailValue}>
+                    {userRegistration.notes}
+                  </Text>
+                </Text>
+              )}
+            </View>
+            <BigButton
+              title="Edit Registration"
+              onPress={() => setShowRegistrationModal(true)}
+              variant="secondary"
+              style={styles.editButton}
+            />
+          </View>
+        )}
       </View>
     );
   };
 
   const renderAllRegistrations = () => {
     return (
-      <View style={styles.allRegistrationsContainer}>
+      <>
         <TabMenu
           tabs={allRegistrationTabs}
           activeTab={allRegistrationsActiveTab}
           onTabPress={setAllRegistrationsActiveTab}
         />
-
-        {allRegistrationsActiveTab === "rides" ? (
-          <View style={styles.listContainer}>
-            <Text style={styles.listTitle}>Available Rides</Text>
-            <Text style={styles.emptyListText}>
-              No rides available yet. Be the first to offer a ride!
-            </Text>
+        <View style={getContentContainerStyle()}>
+          <View style={styles.allRegistrationsContainer}>
+            {allRegistrationsActiveTab === "rides" ? (
+              <View style={styles.listContainer}>
+                <Text style={styles.listTitle}>Available Rides</Text>
+                <Text style={styles.emptyListText}>
+                  No rides available yet. Be the first to offer a ride!
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.listContainer}>
+                <Text style={styles.listTitle}>
+                  Passengers Looking for Rides
+                </Text>
+                <Text style={styles.emptyListText}>
+                  No passengers in waitlist yet.
+                </Text>
+              </View>
+            )}
           </View>
-        ) : (
-          <View style={styles.listContainer}>
-            <Text style={styles.listTitle}>Passengers Looking for Rides</Text>
-            <Text style={styles.emptyListText}>
-              No passengers in waitlist yet.
-            </Text>
-          </View>
-        )}
-      </View>
+        </View>
+      </>
     );
   };
 
@@ -300,11 +331,9 @@ const MatchingScreen: React.FC = () => {
         />
       </View>
       <ScrollView style={styles.content}>
-        <ResponsiveContainer>
-          {activeTab === "myRegistration"
-            ? renderMyRegistration()
-            : renderAllRegistrations()}
-        </ResponsiveContainer>
+        {activeTab === "myRegistration"
+          ? renderMyRegistration()
+          : renderAllRegistrations()}
       </ScrollView>
 
       <RegistrationModal
@@ -422,6 +451,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingTop: 20,
+    alignItems: "center",
   },
   listTitle: {
     fontSize: 18,

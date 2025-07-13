@@ -100,6 +100,12 @@ app/
 
 ## 🎨 Design Philosophy
 
+### Responsive Width
+
+Most main content is wrapped in a `ResponsiveContainer` component, which limits the maximum width to **65% of the screen on desktop and tablet** (width ≥ 768px), and uses **100% width on mobile**. This ensures content remains readable and visually balanced on large screens, while being fully responsive on smaller devices.
+
+### Style
+
 The app follows an earthy, organic design with:
 
 - Unsaturated, calming colors
