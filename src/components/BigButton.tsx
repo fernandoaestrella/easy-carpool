@@ -58,22 +58,25 @@ export const BigButton: React.FC<BigButtonProps> = ({
       disabled={disabled}
       activeOpacity={0.8}
     >
-      <Text style={[styles.buttonText, getTextStyle(), textStyle]}>
+      <Text
+        style={[styles.buttonText, getTextStyle(), textStyle]}
+        // Text will wrap to multiple lines as needed, height will grow, width will not
+      >
         {title}
       </Text>
     </TouchableOpacity>
   );
 };
 
+// The button will size itself according to its container. Default margin is provided for consistent spacing, but can be overridden via the 'style' prop or by parent container's padding.
 const styles = StyleSheet.create({
   button: {
-    paddingHorizontal: 64,
+    paddingHorizontal: 16,
     paddingVertical: 32,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 400,
-    minHeight: 96,
+    marginVertical: 12, // Default vertical margin for consistent spacing
     elevation: 3,
     shadowOffset: {
       width: 0,
@@ -100,9 +103,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   buttonText: {
-    fontSize: 32,
     fontWeight: "600",
     textAlign: "center",
+    fontSize: 32, // Default font size, will wrap if needed
   },
   buttonTextPrimary: {
     color: colors.text.inverse,

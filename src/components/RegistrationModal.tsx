@@ -1,7 +1,14 @@
 import { colors } from "../styles/colors";
 
 import React, { useState } from "react";
-import { Modal, View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { Form } from "./Form";
 import { BigButton } from "./BigButton";
 
@@ -41,14 +48,23 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="fullScreen"
+    >
       <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Register Your Departure</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.title}>Register Your Departure</Text>
           {!intent ? (
             <View style={styles.intentButtons}>
               <BigButton
@@ -63,18 +79,27 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               />
             </View>
           ) : (
-            <Form fields={getFields()} onSubmit={handleFormSubmit}>
-              <BigButton
-                title="Submit"
-                onPress={() => handleFormSubmit(formValues)}
-              />
-              <BigButton
-                title="Back"
-                onPress={() => setIntent(null)}
-                variant="secondary"
-                style={styles.intentButton}
-              />
-            </Form>
+            <>
+              <View style={styles.intentHeader}>
+                <Text style={styles.selectedIntent}>
+                  {intent === "offer"
+                    ? "Offering a Ride"
+                    : "Looking for a Ride"}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIntent(null)}
+                  style={styles.changeButton}
+                >
+                  <Text style={styles.changeButtonText}>Change</Text>
+                </TouchableOpacity>
+              </View>
+              <Form fields={getFields()} onSubmit={handleFormSubmit}>
+                <BigButton
+                  title="Submit"
+                  onPress={() => handleFormSubmit(formValues)}
+                />
+              </Form>
+            </>
           )}
         </ScrollView>
       </View>
@@ -85,21 +110,38 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background.primary,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    paddingTop: 50,
+    backgroundColor: colors.background.secondary,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: colors.text.primary,
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.neutral ? colors.neutral.tertiary : "#ccc",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.background.primary,
-    padding: 24,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: colors.text.primary,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 24,
-    color: colors.text.primary,
+    padding: 24,
   },
   intentButtons: {
     width: "100%",
@@ -108,5 +150,26 @@ const styles = StyleSheet.create({
   intentButton: {
     marginBottom: 0,
   },
-  // End of file
+  intentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 16,
+  },
+  selectedIntent: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.text.primary,
+  },
+  changeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: colors.neutral ? colors.neutral.tertiary : "#ccc",
+  },
+  changeButtonText: {
+    color: colors.text.primary,
+    fontWeight: "500",
+  },
 });

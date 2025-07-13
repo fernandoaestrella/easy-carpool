@@ -9,6 +9,7 @@ import { PassengerRegistrationData } from "../../../src/components/PassengerRegi
 import { Toast } from "../../../src/components/Toast";
 import { colors } from "../../../src/styles/colors";
 import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
+import { Dialog } from "../../../src/components/Dialog";
 
 // Field configs for ride and passenger registration
 const luggageOptions = [
@@ -115,13 +116,25 @@ const MatchingScreen: React.FC = () => {
   >(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     // Check if user has existing registration
     // If no registration exists, auto-open registration modal
     const hasExistingRegistration = checkForExistingRegistration();
     if (!hasExistingRegistration) {
-      setShowRegistrationModal(true);
+      if (typeof window !== "undefined") {
+        const dismissed = sessionStorage.getItem(
+          "hasDismissedRegistrationDialog"
+        );
+        if (!dismissed) {
+          setShowDialog(true);
+        } else {
+          setShowRegistrationModal(true);
+        }
+      } else {
+        setShowRegistrationModal(true);
+      }
     }
   }, []);
 
@@ -278,14 +291,16 @@ const MatchingScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerSticky}>
+        <Text style={styles.pageTitle}>Carpool Matching</Text>
+        <TabMenu
+          tabs={mainTabs}
+          activeTab={activeTab}
+          onTabPress={setActiveTab}
+        />
+      </View>
       <ScrollView style={styles.content}>
         <ResponsiveContainer>
-          <Text style={styles.pageTitle}>Carpool Matching</Text>
-          <TabMenu
-            tabs={mainTabs}
-            activeTab={activeTab}
-            onTabPress={setActiveTab}
-          />
           {activeTab === "myRegistration"
             ? renderMyRegistration()
             : renderAllRegistrations()}
@@ -299,6 +314,25 @@ const MatchingScreen: React.FC = () => {
         autoOpen={!userRegistration}
         rideFields={rideFields}
         passengerFields={passengerFields}
+      />
+
+      <Dialog
+        visible={showDialog}
+        title="Complete your registration"
+        description="For the best user experience, we recommend completing your registration first. This helps us show you the most relevant ride options. Are you sure you want to see other registrations without completing yours?"
+        onAccept={() => {
+          setShowDialog(false);
+          setShowRegistrationModal(true);
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("hasDismissedRegistrationDialog", "true");
+          }
+          setShowRegistrationModal(false);
+        }}
+        acceptText="Continue filling form"
+        cancelText="Yes, show other registrations"
       />
 
       <Toast
@@ -328,6 +362,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  headerSticky: {
+    backgroundColor: colors.background.primary,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    zIndex: 2,
   },
   emptyState: {
     alignItems: "center",
