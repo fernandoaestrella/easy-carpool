@@ -55,9 +55,23 @@ export const Form: React.FC<FormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Track if the contact error was shown due to submit
+  const [contactErrorActive, setContactErrorActive] = useState(false);
+
   const handleFieldChange = (key: string, value: any) => {
     setValues((prev: any) => ({ ...prev, [key]: value }));
-    if (errors[key]) {
+    // If user edits email or phone, clear the contact error from both
+    if ((key === "email" || key === "phone") && contactErrorActive) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        if (next["email"] === "Please provide at least one contact method")
+          next["email"] = "";
+        if (next["phone"] === "Please provide at least one contact method")
+          next["phone"] = "";
+        return next;
+      });
+      setContactErrorActive(false);
+    } else if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: "" }));
     }
   };
@@ -105,6 +119,24 @@ export const Form: React.FC<FormProps> = ({
   };
 
   const handleSubmit = () => {
+    // Check if both contact fields are empty
+    const emailField = fields.find((f) => f.type === "email");
+    const phoneField = fields.find((f) => f.type === "phone");
+    const emailVal = emailField ? values[emailField.key] : "";
+    const phoneVal = phoneField ? values[phoneField.key] : "";
+    const emailEmpty =
+      !emailVal || (typeof emailVal === "string" && !emailVal.trim());
+    const phoneEmpty =
+      !phoneVal || (typeof phoneVal === "string" && !phoneVal.trim());
+    if (emailField && phoneField && emailEmpty && phoneEmpty) {
+      setErrors((prev) => ({
+        ...prev,
+        [emailField.key]: "Please provide at least one contact method",
+        [phoneField.key]: "Please provide at least one contact method",
+      }));
+      setContactErrorActive(true);
+      return;
+    }
     if (validateForm()) {
       onSubmit(values);
     }

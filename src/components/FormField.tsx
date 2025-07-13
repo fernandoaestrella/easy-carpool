@@ -66,8 +66,9 @@ export const FormField: React.FC<FormFieldProps> = ({
     }
   };
 
-  // Local error state for phone validation
+  // Local error state for phone and email validation
   const [phoneError, setPhoneError] = React.useState<string | null>(null);
+  const [emailError, setEmailError] = React.useState<string | null>(null);
 
   const renderInput = () => {
     // Number field with increment/decrement buttons
@@ -297,7 +298,57 @@ export const FormField: React.FC<FormFieldProps> = ({
             maxLength={20}
           />
           {(error || phoneError) && (
-            <Text style={styles.errorText}>{error || phoneError}</Text>
+            <View>
+              {phoneError && (
+                <Text style={styles.errorText}>- {phoneError}</Text>
+              )}
+              {error && <Text style={styles.errorText}>- {error}</Text>}
+            </View>
+          )}
+        </>
+      );
+    }
+
+    if (config.type === "email") {
+      // Email validation regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const handleEmailChange = (text: string) => {
+        onChangeValue(config.key, text);
+        if (!text) {
+          setEmailError(null);
+        } else if (!emailRegex.test(text)) {
+          setEmailError("Please enter a valid email address");
+        } else {
+          setEmailError(null);
+        }
+      };
+      const handleEmailBlur = () => {
+        if (value && !emailRegex.test(value)) {
+          setEmailError("Please enter a valid email address");
+        } else {
+          setEmailError(null);
+        }
+      };
+      return (
+        <>
+          <TextInput
+            style={[styles.input, (error || emailError) && styles.inputError]}
+            value={typeof value === "string" ? value : ""}
+            onChangeText={handleEmailChange}
+            onBlur={handleEmailBlur}
+            placeholder={config.placeholder}
+            keyboardType={getKeyboardType()}
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={100}
+          />
+          {(emailError || error) && (
+            <View>
+              {emailError && (
+                <Text style={styles.errorText}>- {emailError}</Text>
+              )}
+              {error && <Text style={styles.errorText}>- {error}</Text>}
+            </View>
           )}
         </>
       );
@@ -314,13 +365,12 @@ export const FormField: React.FC<FormFieldProps> = ({
         onChangeText={(text) => onChangeValue(config.key, text)}
         placeholder={config.placeholder}
         keyboardType={getKeyboardType()}
-        autoCapitalize={config.type === "email" ? "none" : "words"}
         autoCorrect={false}
       />
     );
   };
 
-  // For phone, error is rendered inside renderInput
+  // For phone and email, error is rendered inside renderInput
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.label}>
@@ -328,8 +378,8 @@ export const FormField: React.FC<FormFieldProps> = ({
         {config.required && <Text style={styles.required}> *</Text>}
       </Text>
       {renderInput()}
-      {config.type !== "phone" && error && (
-        <Text style={styles.errorText}>{error}</Text>
+      {config.type !== "phone" && config.type !== "email" && error && (
+        <Text style={styles.errorText}>- {error}</Text>
       )}
     </View>
   );
