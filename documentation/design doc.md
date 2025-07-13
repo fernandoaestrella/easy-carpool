@@ -160,7 +160,7 @@ This carpooling app facilitates finding a carpool match in the easiest way possi
   - Notes
     - Text Input
 - Ride Registration
-  - Time Difference
+  - Time Difference, e.g. "1 hr 30 mins after your departure time", "25 mins before your departure time"
   - Ride Registration Input Form data
     - Departure Date
     - "Flexible Departure" boolean

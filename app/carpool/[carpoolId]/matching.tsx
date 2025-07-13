@@ -319,22 +319,118 @@ const MatchingScreen: React.FC = () => {
     </View>
   );
 
+  // Helper to get user's reference departure time (fixed or flexible start)
+  const getUserReferenceDepartureTime = () => {
+    if (!userRegistration) return null;
+    if (userRegistration.isFlexibleTime) {
+      return userRegistration.departureTimeStart || null;
+    } else {
+      return userRegistration.fixedDepartureTime || null;
+    }
+  };
+
+  // Helper to format the user's departure time for display
+  const formatUserDepartureTime = () => {
+    const refTime = getUserReferenceDepartureTime();
+    if (!refTime) return "-";
+    // Use formatTimeWithZone from registrationUtils
+    // @ts-ignore
+    return require("../../../src/utils/registrationUtils").formatTimeWithZone(refTime, carpoolTimeZone);
+  };
+
+  // Helper to get the registration's departure time (fixed or flexible start)
+  const getRegistrationDepartureTime = (reg: any) => {
+    if (!reg) return null;
+    if (reg.isFlexibleTime) {
+      return reg.departureTimeStart || null;
+    } else {
+      return reg.fixedDepartureTime || null;
+    }
+  };
+
+  // Helper to get the user's reference departure time as a number (ms since epoch)
+  const getUserReferenceDepartureTimeMs = () => {
+    const refTime = getUserReferenceDepartureTime();
+    if (!refTime) return null;
+    // Use luxon to parse as ms
+    try {
+      // @ts-ignore
+      const { DateTime } = require("luxon");
+      if (typeof refTime === "number") return refTime;
+      if (typeof refTime === "string" && /^\d+$/.test(refTime)) return parseInt(refTime, 10);
+      const dt = DateTime.fromISO(refTime, { zone: carpoolTimeZone });
+      if (dt.isValid) return dt.toMillis();
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Helper to get registration's departure time as ms
+  const getRegistrationDepartureTimeMs = (reg: any) => {
+    const depTime = getRegistrationDepartureTime(reg);
+    if (!depTime) return null;
+    try {
+      // @ts-ignore
+      const { DateTime } = require("luxon");
+      if (typeof depTime === "number") return depTime;
+      if (typeof depTime === "string" && /^\d+$/.test(depTime)) return parseInt(depTime, 10);
+      const dt = DateTime.fromISO(depTime, { zone: carpoolTimeZone });
+      if (dt.isValid) return dt.toMillis();
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Sort registrations by absolute time difference to user's reference time, positive values prioritized in ties
+  const sortRegistrationsByTimeDiff = (regs: any[]) => {
+    const userRefMs = getUserReferenceDepartureTimeMs();
+    if (!userRefMs) return regs;
+    return [...regs].sort((a, b) => {
+      const aMs = getRegistrationDepartureTimeMs(a);
+      const bMs = getRegistrationDepartureTimeMs(b);
+      if (aMs == null && bMs == null) return 0;
+      if (aMs == null) return 1;
+      if (bMs == null) return -1;
+      const aDiff = aMs - userRefMs;
+      const bDiff = bMs - userRefMs;
+      const aAbs = Math.abs(aDiff);
+      const bAbs = Math.abs(bDiff);
+      if (aAbs !== bAbs) return aAbs - bAbs;
+      // If abs values are equal, prioritize positive (after user's time)
+      if (aDiff >= 0 && bDiff < 0) return -1;
+      if (aDiff < 0 && bDiff >= 0) return 1;
+      return 0;
+    });
+  };
+
   const renderAllRegistrations = () => {
     const isRides = allRegistrationsActiveTab === "rides";
     const list = isRides ? rides : waitlist;
+    const userDepartureTimeStr = formatUserDepartureTime();
+    const userRefMs = getUserReferenceDepartureTimeMs();
+    const sortedList = userRefMs ? sortRegistrationsByTimeDiff(list) : list;
     return (
       <>
+        {/* Info line about sorting */}
+        <View style={{ marginBottom: 8, marginTop: 8 }}>
+          <Text style={{ textAlign: "center", color: styles.detailLabel.color, fontSize: 15 }}>
+            Registrations sorted by those closest to your departure time of {userDepartureTimeStr}
+          </Text>
+        </View>
         <TabMenu
           tabs={allRegistrationTabs}
           activeTab={allRegistrationsActiveTab}
           onTabPress={setAllRegistrationsActiveTab}
         />
         <RegistrationList
-          registrations={list}
+          registrations={sortedList}
           isRide={isRides}
           styles={styles}
           windowWidth={windowWidth}
           timeZone={carpoolTimeZone}
+          userReferenceDepartureTimeMs={userRefMs}
         />
       </>
     );

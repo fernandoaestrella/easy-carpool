@@ -77,12 +77,21 @@ app/
 └── +not-found.tsx     # 404 page for invalid URLs
 ```
 
-### Key Features
 
-- **Automatic 404 handling** - Invalid URLs automatically show the Page Not Found screen
-- **Universal deep linking** - All routes work across web, iOS, and Android
-- **File-based routing** - URLs automatically match the file structure
-- **Playful error messages** - Random carpool-themed messages on 404 pages
+### All Registrations Sorting & Time Difference
+
+In the All Registrations tab, the app sorts all ride and waitlist registrations by how close their departure time is to your own registered departure time. This is done as follows:
+
+- **Reference time**: Your own registration's departure time is used as the reference. If you selected a fixed departure time, that is used. If you selected a flexible time, the start of your time range is used.
+- **Sorting**: All registrations are sorted by the absolute value of the time difference to your reference time. If two registrations are equally close, those with a later (positive) time difference are prioritized.
+- **Display**: Above the Rides and Waitlist tabs, a line shows:  
+  `Registrations sorted by those closest to your departure time of [your departure time]`
+- **Time Difference**: Each registration card displays the time difference as:
+  - `X hr Y mins after your departure time` (if the registration is later)
+  - `X hr Y mins before your departure time` (if earlier)
+  - `same as your departure time` (if exactly the same)
+
+This helps you quickly see which rides or passengers are most relevant to your own travel plans.
 
 ### Navigation
 

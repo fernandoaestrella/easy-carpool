@@ -14,6 +14,7 @@ export function RegistrationCard({
   isRide,
   styles,
   timeZone,
+  userReferenceDepartureTimeMs,
 }: {
   registration: any;
   onDelete?: () => void;
@@ -21,6 +22,7 @@ export function RegistrationCard({
   isRide?: boolean;
   styles: any;
   timeZone: string;
+  userReferenceDepartureTimeMs?: number | null;
 }) {
   // Debug: log the raw time values
   console.log("RegistrationCard times:", {
@@ -28,6 +30,25 @@ export function RegistrationCard({
     departureTimeEnd: registration.departureTimeEnd,
     name: registration.name,
   });
+  // Helper to get registration's departure time (fixed or flexible start)
+  const getRegistrationDepartureTimeMs = () => {
+    const depTime = registration.isFlexibleTime
+      ? registration.departureTimeStart
+      : registration.fixedDepartureTime;
+    if (!depTime) return null;
+    try {
+      // @ts-ignore
+      const { DateTime } = require("luxon");
+      if (typeof depTime === "number") return depTime;
+      if (typeof depTime === "string" && /^\d+$/.test(depTime)) return parseInt(depTime, 10);
+      const dt = DateTime.fromISO(depTime, { zone: timeZone });
+      if (dt.isValid) return dt.toMillis();
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <View style={styles.registrationCard}>
       {onDelete && (
@@ -45,14 +66,8 @@ export function RegistrationCard({
       <View style={styles.registrationDetails}>
         {/* 1. Time Difference (always first) */}
         <TimeDifference
-          start={
-            registration.isFlexibleTime
-              ? registration.departureTimeStart
-              : registration.departureTimeStart
-          }
-          end={
-            registration.isFlexibleTime ? registration.departureTimeEnd : null
-          }
+          registrationTimeMs={getRegistrationDepartureTimeMs()}
+          referenceTimeMs={userReferenceDepartureTimeMs}
         />
 
         {/* 2. Departure Date */}
