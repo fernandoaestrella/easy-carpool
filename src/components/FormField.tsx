@@ -66,6 +66,9 @@ export const FormField: React.FC<FormFieldProps> = ({
     }
   };
 
+  // Local error state for phone validation
+  const [phoneError, setPhoneError] = React.useState<string | null>(null);
+
   const renderInput = () => {
     // Number field with increment/decrement buttons
     if (config.type === "number") {
@@ -269,6 +272,36 @@ export const FormField: React.FC<FormFieldProps> = ({
     }
 
     // phone, email, text
+    if (config.type === "phone") {
+      return (
+        <>
+          <TextInput
+            style={[styles.input, (error || phoneError) && styles.inputError]}
+            value={
+              typeof value === "string" || typeof value === "number"
+                ? String(value)
+                : ""
+            }
+            onChangeText={(text) => {
+              if (/^\d*$/.test(text)) {
+                setPhoneError(null);
+                onChangeValue(config.key, text);
+              } else {
+                setPhoneError("Phone number must contain numbers only");
+              }
+            }}
+            placeholder={config.placeholder}
+            keyboardType={getKeyboardType()}
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={20}
+          />
+          {(error || phoneError) && (
+            <Text style={styles.errorText}>{error || phoneError}</Text>
+          )}
+        </>
+      );
+    }
     // React Native TextInput does not support inputMode prop as a string; use keyboardType only.
     return (
       <TextInput
@@ -287,6 +320,7 @@ export const FormField: React.FC<FormFieldProps> = ({
     );
   };
 
+  // For phone, error is rendered inside renderInput
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.label}>
@@ -294,7 +328,9 @@ export const FormField: React.FC<FormFieldProps> = ({
         {config.required && <Text style={styles.required}> *</Text>}
       </Text>
       {renderInput()}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {config.type !== "phone" && error && (
+        <Text style={styles.errorText}>{error}</Text>
+      )}
     </View>
   );
 };

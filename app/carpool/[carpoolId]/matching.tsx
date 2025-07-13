@@ -11,8 +11,10 @@ import { useLocalSearchParams } from "expo-router";
 import { TabMenu } from "../../../src/components/TabMenu";
 import { BigButton } from "../../../src/components/BigButton";
 import { RegistrationModal } from "../../../src/components/RegistrationModal";
-import { RideRegistrationData } from "../../../src/components/RideRegistrationForm";
-import { PassengerRegistrationData } from "../../../src/components/PassengerRegistrationForm";
+import {
+  RideRegistrationData,
+  PassengerRegistrationData,
+} from "../../../src/types/registration";
 import { Toast } from "../../../src/components/Toast";
 import { colors } from "../../../src/styles/colors";
 import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
@@ -26,9 +28,6 @@ const luggageOptions = [
 ];
 
 const rideFields = [
-  { key: "name", label: "Name", type: "text", required: true },
-  { key: "email", label: "Email", type: "email" },
-  { key: "phone", label: "Phone", type: "phone" },
   { key: "date", label: "Departure Date", type: "date", required: true },
   {
     key: "isFlexibleTime",
@@ -86,12 +85,12 @@ const rideFields = [
     showIf: (values: any) => values.preferToDrive === false,
   },
   { key: "notes", label: "Notes", type: "multiline_text" },
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "email", label: "Email", type: "email" },
 ];
 
 const passengerFields = [
-  { key: "name", label: "Name", type: "text", required: true },
-  { key: "email", label: "Email", type: "email" },
-  { key: "phone", label: "Phone", type: "phone" },
   { key: "date", label: "Departure Date", type: "date", required: true },
   {
     key: "isFlexibleTime",
@@ -127,6 +126,9 @@ const passengerFields = [
     default: false,
   },
   { key: "notes", label: "Notes", type: "multiline_text" },
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "email", label: "Email", type: "email" },
 ];
 const MatchingScreen: React.FC = () => {
   const { width: windowWidth } = useWindowDimensions();
