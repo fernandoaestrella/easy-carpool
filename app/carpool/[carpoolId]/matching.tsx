@@ -15,7 +15,19 @@ import {
   RideRegistrationData,
   PassengerRegistrationData,
 } from "../../../src/types/registration";
+
+// Extend registration types to allow id fields for local use
+type RideRegistrationWithId = RideRegistrationData & { rideId?: string };
+type PassengerRegistrationWithId = PassengerRegistrationData & {
+  waitlistPassengerId?: string;
+};
+type RegistrationWithId = (
+  | RideRegistrationWithId
+  | PassengerRegistrationWithId
+) & { intent?: "offer" | "join" | null };
 import { Toast } from "../../../src/components/Toast";
+import { getDatabase, ref, remove, push, set } from "firebase/database";
+import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../../../src/styles/colors";
 import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
 import { Dialog } from "../../../src/components/Dialog";
@@ -141,13 +153,13 @@ const passengerFields = [
     key: "phone",
     label: "Phone",
     type: "phone",
-    placeholder: "Enter your phone (or email above)",
+    placeholder: "Enter your phone (or email below)",
   },
   {
     key: "email",
     label: "Email",
     type: "email",
-    placeholder: "Enter your email (or phone below)",
+    placeholder: "Enter your email (or phone above)",
   },
 ];
 const MatchingScreen: React.FC = () => {
@@ -156,9 +168,8 @@ const MatchingScreen: React.FC = () => {
   const { carpoolId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("myRegistration");
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
-  const [userRegistration, setUserRegistration] = useState<
-    RideRegistrationData | PassengerRegistrationData | null
-  >(null);
+  const [userRegistration, setUserRegistration] =
+    useState<RegistrationWithId | null>(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -179,7 +190,8 @@ const MatchingScreen: React.FC = () => {
       const saved = localStorage.getItem(`registration_${carpoolId}`);
       if (saved) {
         try {
-          setUserRegistration(JSON.parse(saved));
+          const parsed: RegistrationWithId = JSON.parse(saved);
+          setUserRegistration(parsed);
           return true;
         } catch (error) {
           console.error("Failed to load registration:", error);
@@ -189,29 +201,48 @@ const MatchingScreen: React.FC = () => {
     return false;
   };
 
-  const handleRegistrationSubmit = (
+  // Save registration to Firebase and local storage, ensuring id is stored
+  const handleRegistrationSubmit = async (
     data: RideRegistrationData | PassengerRegistrationData,
     intent: "offer" | "join" | null
   ) => {
-    // Save registration to Firebase and local storage
+    const db = getDatabase();
+    let idKey = null;
+    let firebasePath = "";
+    let registrationToSave: RegistrationWithId = { ...data, intent };
+    if (intent === "offer") {
+      // Save as ride
+      firebasePath = `carpools/${carpoolId}/rides`;
+      const newRef = push(ref(db, firebasePath));
+      idKey = newRef.key;
+      // Add id to registration before writing to Firebase
+      registrationToSave = { ...registrationToSave, rideId: idKey };
+      await set(newRef, registrationToSave);
+    } else if (intent === "join") {
+      // Save as waitlist
+      firebasePath = `carpools/${carpoolId}/waitlist`;
+      const newRef = push(ref(db, firebasePath));
+      idKey = newRef.key;
+      registrationToSave = {
+        ...registrationToSave,
+        waitlistPassengerId: idKey,
+      };
+      await set(newRef, registrationToSave);
+    }
     if (typeof window !== "undefined") {
       localStorage.setItem(
         `registration_${carpoolId}`,
-        JSON.stringify({ ...data, intent })
+        JSON.stringify(registrationToSave)
       );
     }
-
-    setUserRegistration(data);
+    setUserRegistration(registrationToSave);
     setShowRegistrationModal(false);
-
     showToast(
       intent === "offer"
         ? "Ride offer submitted successfully!"
         : "Waitlist registration submitted successfully!"
     );
-
-    // TODO: Save to Firebase Realtime Database
-    console.log("Submitting registration:", { carpoolId, data, intent });
+    // Registration is now saved with id in both Firebase and local storage
   };
 
   const showToast = (message: string) => {
@@ -233,6 +264,36 @@ const MatchingScreen: React.FC = () => {
   const [allRegistrationsActiveTab, setAllRegistrationsActiveTab] =
     useState("rides");
 
+  // Delete registration from Firebase and local storage
+  const handleDeleteRegistration = async () => {
+    if (!userRegistration) return;
+    const db = getDatabase();
+    let firebasePath = "";
+    let id: string | undefined = undefined;
+    if ("rideId" in userRegistration && userRegistration.rideId) {
+      firebasePath = `carpools/${carpoolId}/rides/${userRegistration.rideId}`;
+      id = userRegistration.rideId;
+    } else if (
+      "waitlistPassengerId" in userRegistration &&
+      userRegistration.waitlistPassengerId
+    ) {
+      firebasePath = `carpools/${carpoolId}/waitlist/${userRegistration.waitlistPassengerId}`;
+      id = userRegistration.waitlistPassengerId;
+    }
+    if (firebasePath && id) {
+      try {
+        await remove(ref(db, firebasePath));
+      } catch (e) {
+        console.error("Failed to delete from Firebase", e);
+      }
+    }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(`registration_${carpoolId}`);
+    }
+    setUserRegistration(null);
+    showToast("Registration deleted.");
+  };
+
   const renderMyRegistration = () => {
     return (
       <View style={getResponsiveContentStyle(windowWidth)}>
@@ -250,6 +311,18 @@ const MatchingScreen: React.FC = () => {
           </View>
         ) : (
           <View style={styles.registrationCard}>
+            {/* Trash icon in top-right corner */}
+            <View
+              style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
+            >
+              <Ionicons
+                name="trash"
+                size={24}
+                color={colors.text.secondary}
+                onPress={handleDeleteRegistration}
+                accessibilityLabel="Delete registration"
+              />
+            </View>
             <Text style={styles.cardTitle}>Your Registration</Text>
             <View style={styles.registrationDetails}>
               <Text style={styles.detailLabel}>

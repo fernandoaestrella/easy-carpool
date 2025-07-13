@@ -99,7 +99,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   }, [visible, intent, rideFields, passengerFields]);
 
   // Custom cross-field validation for email/phone
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = (values: any) => {
     const email = values.email?.trim();
     const phone = values.phone?.trim();
     if (!email && !phone) {
@@ -111,62 +111,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
     setFieldErrors({});
     onSubmit(values, intent);
-    if (!carpoolId) return;
-    if (!intent) return;
-    const database = getDatabase();
-    try {
-      if (intent === "offer") {
-        // Ride registration
-        const ridesRef = ref(database, `carpools/${carpoolId}/rides`);
-        const newRideRef = push(ridesRef);
-        // Compose ride data
-        const rideData = {
-          ...values,
-          date: values.date || null,
-          isFlexibleTime: values.isFlexibleTime || false,
-          departureTimeStart: values.departureTimeStart || null,
-          departureTimeEnd: values.departureTimeEnd || null,
-          seatsTotal: values.seatsTotal || 1,
-          seatsAvailable: values.seatsTotal || 1,
-          luggageSpace: values.luggageSpace || "Small",
-          preferToDrive: values.preferToDrive ?? true,
-          canDrive: values.canDrive ?? false,
-          notes: values.notes || "",
-          contact: {
-            email: values.email || "",
-            phone: values.phone || "",
-          },
-          notifications: {
-            seatFilled: false,
-            passengerCanceled: false,
-          },
-          createdAt: Date.now(),
-        };
-        await set(newRideRef, rideData);
-      } else if (intent === "join") {
-        // Passenger registration (waitlist)
-        const waitlistRef = ref(database, `carpools/${carpoolId}/waitlist`);
-        const newPassengerRef = push(waitlistRef);
-        const passengerData = {
-          ...values,
-          date: values.date || null,
-          isFlexibleTime: values.isFlexibleTime || false,
-          departureTimeStart: values.departureTimeStart || null,
-          departureTimeEnd: values.departureTimeEnd || null,
-          canDrive: values.canDrive ?? false,
-          notes: values.notes || "",
-          contact: {
-            email: values.email || "",
-            phone: values.phone || "",
-          },
-          createdAt: Date.now(),
-        };
-        await set(newPassengerRef, passengerData);
-      }
-    } catch (e) {
-      // Minimal error handling as per instructions
-      // Optionally, add error reporting here
-    }
   };
 
   // Filter fields based on showIf (for conditional fields)
