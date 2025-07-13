@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet, ViewStyle } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ViewStyle,
+  TouchableOpacity,
+} from "react-native";
 import { colors } from "../styles/colors";
 import { TimezoneSearchDropdown } from "./TimezoneSearchDropdown";
 
@@ -23,6 +30,9 @@ export interface FormFieldConfig {
   value?: string | boolean | number;
   options?: { label: string; value: string }[]; // for dropdown
   disabled?: boolean; // for display
+  min?: number;
+  max?: number;
+  default?: number;
 }
 
 interface FormFieldProps {
@@ -61,13 +71,12 @@ export const FormField: React.FC<FormFieldProps> = ({
     if (config.type === "number") {
       const min = typeof config.min === "number" ? config.min : 1;
       const max = typeof config.max === "number" ? config.max : 999;
-      const defaultValue = typeof config.default === "number" ? config.default : 2;
       const [isFocused, setIsFocused] = React.useState(false);
       // Allow any value while focused, coerce on blur
       const handleBlur = () => {
         setIsFocused(false);
         let coerced = Number(value);
-        if (isNaN(coerced)) coerced = defaultValue;
+        if (isNaN(coerced)) coerced = min;
         if (coerced < min) coerced = min;
         if (coerced > max) coerced = max;
         if (coerced !== value) onChangeValue(config.key, coerced);
@@ -88,26 +97,24 @@ export const FormField: React.FC<FormFieldProps> = ({
       };
       return (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text
+          <TouchableOpacity
+            onPress={handleDecrement}
+            accessibilityRole="button"
+            accessibilityLabel="Decrease"
             style={{
               width: 36,
               height: 36,
               borderRadius: 18,
               backgroundColor: colors.interactive.primary,
-              color: "#fff",
-              fontSize: 24,
-              textAlign: "center",
-              textAlignVertical: "center",
+              justifyContent: "center",
+              alignItems: "center",
               marginRight: 8,
-              lineHeight: 36,
-              overflow: "hidden",
             }}
-            onPress={handleDecrement}
-            accessibilityRole="button"
-            accessibilityLabel="Decrease"
           >
-            -
-          </Text>
+            <Text style={{ color: "#fff", fontSize: 24, lineHeight: 28 }}>
+              -
+            </Text>
+          </TouchableOpacity>
           <TextInput
             style={[
               styles.input,
@@ -123,26 +130,24 @@ export const FormField: React.FC<FormFieldProps> = ({
             accessibilityLabel={config.label}
             maxLength={3}
           />
-          <Text
+          <TouchableOpacity
+            onPress={handleIncrement}
+            accessibilityRole="button"
+            accessibilityLabel="Increase"
             style={{
               width: 36,
               height: 36,
               borderRadius: 18,
               backgroundColor: colors.interactive.primary,
-              color: "#fff",
-              fontSize: 24,
-              textAlign: "center",
-              textAlignVertical: "center",
+              justifyContent: "center",
+              alignItems: "center",
               marginLeft: 8,
-              lineHeight: 36,
-              overflow: "hidden",
             }}
-            onPress={handleIncrement}
-            accessibilityRole="button"
-            accessibilityLabel="Increase"
           >
-            +
-          </Text>
+            <Text style={{ color: "#fff", fontSize: 24, lineHeight: 28 }}>
+              +
+            </Text>
+          </TouchableOpacity>
         </View>
       );
     }

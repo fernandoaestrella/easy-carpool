@@ -25,8 +25,6 @@ export const Form: React.FC<FormProps> = ({
       fields.forEach((field) => {
         if (field.type === "checkbox") {
           initialValues[field.key] = field.value ?? false;
-        } else if (field.type === "number") {
-          initialValues[field.key] = field.value ?? "";
         } else {
           initialValues[field.key] = field.value ?? "";
         }
@@ -45,7 +43,6 @@ export const Form: React.FC<FormProps> = ({
       fields.forEach((field) => {
         if (!(field.key in next)) {
           if (field.type === "checkbox") next[field.key] = field.value ?? false;
-          else if (field.type === "number") next[field.key] = field.value ?? "";
           else next[field.key] = field.value ?? "";
         }
       });

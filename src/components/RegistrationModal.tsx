@@ -71,6 +71,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         defaults[field.key] = oneHourLaterStr;
       } else if (field.key === "preferToDrive") {
         defaults[field.key] = true;
+      } else if (field.key === "seatsTotal") {
+        defaults[field.key] = 2;
       } else if (typeof field.default !== "undefined") {
         defaults[field.key] = field.default;
       }

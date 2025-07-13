@@ -60,6 +60,7 @@ const rideFields = [
     label: "Seats Available",
     type: "number",
     required: true,
+    // default is set only in RegistrationModal
   },
   {
     key: "luggageSpace",
@@ -129,21 +130,10 @@ const MatchingScreen: React.FC = () => {
 
   useEffect(() => {
     // Check if user has existing registration
-    // If no registration exists, auto-open registration modal
+    // If no registration exists, open registration modal (no dialog on load)
     const hasExistingRegistration = checkForExistingRegistration();
     if (!hasExistingRegistration) {
-      if (typeof window !== "undefined") {
-        const dismissed = sessionStorage.getItem(
-          "hasDismissedRegistrationDialog"
-        );
-        if (!dismissed) {
-          setShowDialog(true);
-        } else {
-          setShowRegistrationModal(true);
-        }
-      } else {
-        setShowRegistrationModal(true);
-      }
+      setShowRegistrationModal(true);
     }
   }, []);
 
@@ -323,31 +313,39 @@ const MatchingScreen: React.FC = () => {
 
       <RegistrationModal
         visible={showRegistrationModal}
-        onClose={() => setShowRegistrationModal(false)}
+        onClose={() => {
+          setShowRegistrationModal(false);
+          // Only show dialog if user has not registered yet
+          if (!userRegistration) {
+            setShowDialog(true);
+          }
+        }}
         onSubmit={handleRegistrationSubmit}
         autoOpen={!userRegistration}
         rideFields={rideFields}
         passengerFields={passengerFields}
       />
 
-      <Dialog
-        visible={showDialog}
-        title="Complete your registration"
-        description="For the best user experience, we recommend completing your registration first. This helps us show you the most relevant ride options. Are you sure you want to see other registrations without completing yours?"
-        onAccept={() => {
-          setShowDialog(false);
-          setShowRegistrationModal(true);
-        }}
-        onCancel={() => {
-          setShowDialog(false);
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("hasDismissedRegistrationDialog", "true");
-          }
-          setShowRegistrationModal(false);
-        }}
-        acceptText="Continue filling form"
-        cancelText="Yes, show other registrations"
-      />
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <Dialog
+          visible={showDialog}
+          title="Complete your registration"
+          description="For the best user experience, we recommend completing your registration first. This helps us show you the most relevant ride options. Are you sure you want to see other registrations without completing yours?"
+          onAccept={() => {
+            setShowDialog(false);
+            setShowRegistrationModal(true);
+          }}
+          onCancel={() => {
+            setShowDialog(false);
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem("hasDismissedRegistrationDialog", "true");
+            }
+            setShowRegistrationModal(false);
+          }}
+          acceptText="Continue filling form"
+          cancelText="Yes, show other registrations"
+        />
+      </View>
 
       <Toast
         message={toastMessage}

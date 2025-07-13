@@ -104,7 +104,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Select date",
         }}
         value={formData.date || ""}
-          onChangeValue={(key, value) => updateField("date", value)}
+        onChangeValue={(key, value) => updateField("date", value)}
       />
 
       <View style={styles.switchRow}>
@@ -135,9 +135,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
               placeholder: "e.g., 9:00 AM",
             }}
             value={formData.departureTimeStart || ""}
-          onChangeValue={(key, value) =>
-            updateField("departureTimeStart", value)
-          }
+            onChangeValue={(key, value) =>
+              updateField("departureTimeStart", value)
+            }
           />
           <FormField
             config={{
@@ -148,9 +148,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
               placeholder: "e.g., 2:00 PM",
             }}
             value={formData.departureTimeEnd || ""}
-          onChangeValue={(key, value) =>
-            updateField("departureTimeEnd", value)
-          }
+            onChangeValue={(key, value) =>
+              updateField("departureTimeEnd", value)
+            }
           />
         </>
       ) : (
@@ -189,7 +189,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Small, Medium, or Large",
         }}
         value={formData.luggageSpace || ""}
-          onChangeValue={(key, value) => updateField("luggageSpace", value)}
+        onChangeValue={(key, value) => updateField("luggageSpace", value)}
       />
 
       <View style={styles.switchRow}>
@@ -236,7 +236,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           placeholder: "Additional information...",
         }}
         value={formData.notes || ""}
-          onChangeValue={(key, value) => updateField("notes", value)}
+        onChangeValue={(key, value) => updateField("notes", value)}
       />
 
       <Text style={styles.sectionTitle}>Contact Information</Text>
@@ -249,9 +249,9 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
           value={
             formData[field.key as keyof RideRegistrationData]?.toString() || ""
           }
-            onChangeValue={(key, value) =>
-              updateField(key as keyof RideRegistrationData, value)
-            }
+          onChangeValue={(key, value) =>
+            updateField(key as keyof RideRegistrationData, value)
+          }
         />
       ))}
 
