@@ -384,8 +384,9 @@ Firebase Hosting is beginner-friendly:
           "driverId": "string",
           "date": "timestamp",
           "isFlexibleTime": "boolean",
-          "departureTimeStart": "timestamp",
-          "departureTimeEnd": "timestamp",
+          "fixedDepartureTime": "timestamp", // Only set if isFlexibleTime is false. Represents the exact departure time for fixed departures.
+          "departureTimeStart": "timestamp", // Only set if isFlexibleTime is true. Represents the start of the flexible time range.
+          "departureTimeEnd": "timestamp", // Only set if isFlexibleTime is true. Represents the end of the flexible time range.
           "seatsTotal": "number",
           "seatsAvailable": "number",
           "luggageSpace": "string",
@@ -416,8 +417,9 @@ Firebase Hosting is beginner-friendly:
         "$passengerId": {
           "date": "timestamp",
           "isFlexibleTime": "boolean",
-          "departureTimeStart": "timestamp",
-          "departureTimeEnd": "timestamp",
+          "fixedDepartureTime": "timestamp", // Only set if isFlexibleTime is false. Represents the exact departure time for fixed departures.
+          "departureTimeStart": "timestamp", // Only set if isFlexibleTime is true. Represents the start of the flexible time range.
+          "departureTimeEnd": "timestamp", // Only set if isFlexibleTime is true. Represents the end of the flexible time range.
           "canDrive": "boolean",
           "notes": "string",
           "contact": {

@@ -90,10 +90,10 @@ export function RegistrationCard({
           </Text>
         ) : (
           <Text style={styles.detailLabel}>
-            Time:{" "}
+            Departure Time:{" "}
             <Text style={styles.detailValue}>
-              {registration.departureTimeStart
-                ? formatTimeWithZone(registration.departureTimeStart, timeZone)
+              {registration.fixedDepartureTime
+                ? formatTimeWithZone(registration.fixedDepartureTime, timeZone)
                 : "-"}
             </Text>
           </Text>

@@ -1,7 +1,7 @@
 import { colors } from "../styles/colors";
 import { getShortTimezoneAbbreviation } from "../utils/registrationUtils";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { getDatabase, ref, push, set } from "firebase/database";
 import {
@@ -48,6 +48,29 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     email?: string;
     phone?: string;
   }>({});
+  // Track previous isFlexibleTime to detect transitions
+  const prevIsFlexibleTime = useRef<boolean | undefined>(undefined);
+  // Set default values for flexible time fields when isFlexibleTime is toggled on
+  useEffect(() => {
+    const isFlexible = formValues.isFlexibleTime;
+    // Only run if isFlexibleTime is true and was previously false or undefined
+    if (isFlexible && !prevIsFlexibleTime.current) {
+      // Only set if fields are empty or undefined
+      if (!formValues.departureTimeStart || !formValues.departureTimeEnd) {
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, "0");
+        const nowStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+        const oneHourLaterStr = `${pad(oneHourLater.getHours())}:${pad(oneHourLater.getMinutes())}`;
+        setFormValues((prev: any) => ({
+          ...prev,
+          departureTimeStart: prev.departureTimeStart || nowStr,
+          departureTimeEnd: prev.departureTimeEnd || oneHourLaterStr,
+        }));
+      }
+    }
+    prevIsFlexibleTime.current = isFlexible;
+  }, [formValues.isFlexibleTime]);
   // Removed skipInitialValues, will use parent callback
 
   // Helper to get sensible default values for all fields
@@ -124,7 +147,31 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       return;
     }
     setFieldErrors({});
-    onSubmit(values, intent);
+
+    // Map time fields to fixedDepartureTime or time range fields based on isFlexibleTime
+    let submission = { ...values };
+    if (typeof values.isFlexibleTime === "boolean") {
+      if (values.isFlexibleTime) {
+        // Flexible: use departureTimeStart and departureTimeEnd, remove fixedDepartureTime
+        submission = {
+          ...submission,
+          fixedDepartureTime: undefined,
+        };
+      } else {
+        // Not flexible: use fixedDepartureTime, remove departureTimeStart and departureTimeEnd
+        submission = {
+          ...submission,
+          fixedDepartureTime: values.departureTime || values.fixedDepartureTime,
+          departureTimeStart: undefined,
+          departureTimeEnd: undefined,
+        };
+      }
+    }
+    // Remove all keys with undefined values (Firebase does not allow undefined)
+    const cleanedSubmission = Object.fromEntries(
+      Object.entries(submission).filter(([_, v]) => v !== undefined)
+    );
+    onSubmit(cleanedSubmission, intent);
   };
 
   // Filter fields based on showIf (for conditional fields)
