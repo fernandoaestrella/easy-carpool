@@ -104,18 +104,21 @@ const passengerFields = [
     label: "Departure Time Start",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime === true,
   },
   {
     key: "departureTimeEnd",
     label: "Departure Time End",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime === true,
   },
   {
     key: "departureTime",
     label: "Departure Time",
     type: "time",
     required: true,
+    showIf: (values: any) => values.isFlexibleTime !== true,
   },
   {
     key: "canDrive",
