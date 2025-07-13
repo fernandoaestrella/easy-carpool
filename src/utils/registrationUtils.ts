@@ -17,34 +17,31 @@ export function getShortTimezoneAbbreviation(timezone: string): string {
   }
 }
 // Format a time string (ISO or timestamp) to 'h:mm AM/PM Z' using the provided timezone string
-// time: string | number (ISO string or timestamp)
-// timezone: string (IANA, e.g. 'America/Chicago')
+// Uses luxon for robust timezone handling
+import { DateTime } from "luxon";
 export function formatTimeWithZone(
   time: string | number,
   timezone: string
 ): string {
   if (!time || !timezone) return "-";
-  let date;
+  let dt;
   try {
     if (typeof time === "string" && /^\d{1,2}:\d{2}$/.test(time)) {
-      // If time is in HH:mm, convert to ISO string with default date
-      time = `1970-01-01T${time}:00`;
+      // Parse as time in the target timezone
+      dt = DateTime.fromFormat(time, "H:mm", { zone: timezone });
+    } else if (typeof time === "string") {
+      dt = DateTime.fromISO(time, { zone: timezone });
+    } else if (typeof time === "number") {
+      dt = DateTime.fromMillis(time, { zone: timezone });
+    } else {
+      return "-";
     }
-    date = typeof time === "number" ? new Date(time) : new Date(time);
-    if (isNaN(date.getTime())) return "-";
+    if (!dt.isValid) return "-";
   } catch {
     return "-";
   }
   try {
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: timezone,
-      timeZoneName: "shortGeneric",
-    };
-    const formatted = new Intl.DateTimeFormat("en-US", options).format(date);
-    return formatted.replace(/,/, "").replace(/ GMT.*/, "");
+    return dt.toFormat("h:mm a z");
   } catch {
     return "-";
   }
