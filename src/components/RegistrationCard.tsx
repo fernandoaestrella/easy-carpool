@@ -32,12 +32,7 @@ export function RegistrationCard({
   [key: string]: any;
 }) {
   const [detailsVisible, setDetailsVisible] = useState(false);
-  // Debug: log the raw time values
-  console.log("RegistrationCard times:", {
-    departureTimeStart: registration.departureTimeStart,
-    departureTimeEnd: registration.departureTimeEnd,
-    name: registration.name,
-  });
+
   // Helper to get registration's departure time (fixed or flexible start)
   const getRegistrationDepartureTimeMs = () => {
     const date = registration.date;
@@ -216,7 +211,13 @@ export function RegistrationCard({
         <RegistrationDetailsModal
           visible={detailsVisible}
           onClose={() => setDetailsVisible(false)}
-          registration={registration}
+          registration={{
+            ...registration,
+            contact: {
+              email: registration.email || "",
+              phone: registration.phone || "",
+            },
+          }}
           isRide={!!isRide}
           timeZone={timeZone}
           onRegisterPassenger={onRegisterPassenger}

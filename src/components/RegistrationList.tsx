@@ -10,6 +10,7 @@ export function RegistrationList({
   windowWidth,
   timeZone,
   userReferenceDepartureTimeMs,
+  onRegisterPassenger,
 }: {
   registrations: any[];
   isRide: boolean;
@@ -17,6 +18,12 @@ export function RegistrationList({
   windowWidth: number;
   timeZone: string;
   userReferenceDepartureTimeMs?: number | null;
+  onRegisterPassenger?: (
+    rideId: string,
+    name: string,
+    email: string,
+    phone: string
+  ) => void;
 }) {
   return (
     <View style={getResponsiveContentStyle(windowWidth)}>
@@ -41,21 +48,12 @@ export function RegistrationList({
                 timeZone={timeZone}
                 userReferenceDepartureTimeMs={userReferenceDepartureTimeMs}
                 showDetailsOnClick={true}
-                onRegisterPassenger={(
-                  name: string,
-                  email: string,
-                  phone: string
-                ) => {
-                  // TODO: Implement registration logic in parent if needed
-                  // This is a placeholder for now
-                  console.log(
-                    "Register as passenger:",
-                    name,
-                    email,
-                    phone,
-                    reg
-                  );
-                }}
+                onRegisterPassenger={
+                  isRide && onRegisterPassenger
+                    ? (name: string, email: string, phone: string) =>
+                        onRegisterPassenger(reg.rideId, name, email, phone)
+                    : undefined
+                }
               />
             ))
           )}

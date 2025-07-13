@@ -20,6 +20,8 @@ import {
   set,
   onValue,
   off,
+  update,
+  serverTimestamp,
 } from "firebase/database";
 import { colors } from "../../../src/styles/colors";
 import {
@@ -413,6 +415,75 @@ const MatchingScreen: React.FC = () => {
     });
   };
 
+  // Handler to register a passenger to a ride
+  const handleRegisterPassenger = async (
+    rideId: string,
+    name: string,
+    email: string,
+    phone: string
+  ) => {
+    const db = getDatabase();
+    const carpoolIdStr = Array.isArray(carpoolId) ? carpoolId[0] : carpoolId;
+    const rideRef = ref(db, `carpools/${carpoolIdStr}/rides/${rideId}`);
+    // Fetch current ride data
+    let rideSnap: any;
+    try {
+      rideSnap = await new Promise((resolve, reject) => {
+        onValue(rideRef, (snap) => resolve(snap), { onlyOnce: true });
+      });
+    } catch (e) {
+      showToast(setToastMessage, setToastVisible, "Failed to fetch ride data.");
+      return;
+    }
+    const ride =
+      rideSnap && typeof rideSnap.val === "function" ? rideSnap.val() : null;
+    if (!ride || typeof ride.seatsTotal !== "number") {
+      showToast(setToastMessage, setToastVisible, "Invalid ride data.");
+      return;
+    }
+    const currentPassengers = ride.passengers
+      ? Object.keys(ride.passengers).length
+      : 0;
+    const availableSeats = ride.seatsTotal - currentPassengers;
+    if (availableSeats <= 0) {
+      showToast(setToastMessage, setToastVisible, "No seats available.");
+      return;
+    }
+    // Generate a new passengerId (timestamp-based)
+    const passengerId = `p_${Date.now()}`;
+    const newPassenger = {
+      name,
+      contact: { email, phone },
+      joinedAt: Date.now(),
+    };
+    const updatedPassengers = ride.passengers ? { ...ride.passengers } : {};
+    updatedPassengers[passengerId] = newPassenger;
+    // Prepare new ride object (no seatsAvailable field)
+    const rideUpdate = {
+      ...ride,
+      passengers: updatedPassengers,
+    };
+    // Debug log
+    console.log(
+      "Registering passenger, ride update:",
+      rideUpdate,
+      "availableSeats:",
+      availableSeats
+    );
+    // Update ride in Firebase
+    try {
+      await set(rideRef, rideUpdate);
+      showToast(setToastMessage, setToastVisible, "Passenger registered!");
+    } catch (e) {
+      console.error("Failed to register passenger:", e, "Data:", rideUpdate);
+      showToast(
+        setToastMessage,
+        setToastVisible,
+        "Failed to register passenger."
+      );
+    }
+  };
+
   const renderAllRegistrations = () => {
     const isRides = allRegistrationsActiveTab === "rides";
     const list = isRides ? rides : waitlist;
@@ -494,6 +565,12 @@ const MatchingScreen: React.FC = () => {
           windowWidth={windowWidth}
           timeZone={carpoolTimeZone}
           userReferenceDepartureTimeMs={userRefMs}
+          onRegisterPassenger={
+            isRides
+              ? (rideId, name, email, phone) =>
+                  handleRegisterPassenger(rideId, name, email, phone)
+              : undefined
+          }
         />
       </>
     );

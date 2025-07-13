@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { colors } from "../styles/colors";
 import { DateString } from "./DateString";
 import { TimeString } from "./TimeString";
 import PassengerRegistrationCard from "./PassengerRegistrationCard";
 import { SmallButton } from "./SmallButton";
 import RegisterAsPassengerModal from "./RegisterAsPassengerModal";
+import { CopyIcon } from "./CopyIcon";
 
 // Icon for seat (replace with your icon system if needed)
 const SeatIcon = ({ filled }: { filled: boolean }) => (
@@ -116,7 +125,72 @@ const RegistrationDetailsModal: React.FC<RegistrationDetailsModalProps> = ({
               >
                 Registration Details
               </Text>
-              {/* Show all registration info here, user-friendly */}
+              {/* Contact Info First */}
+              {registration.contact &&
+                Object.keys(registration.contact).length > 0 && (
+                  <View style={{ marginBottom: 16 }}>
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.text.primary,
+                        marginBottom: 4,
+                      }}
+                    >
+                      Contact Info
+                    </Text>
+                    {Object.entries(registration.contact).map(
+                      ([key, value]) => {
+                        if (!value) return null;
+                        let displayValue: string;
+                        if (
+                          typeof value === "string" ||
+                          typeof value === "number"
+                        ) {
+                          displayValue = String(value);
+                        } else {
+                          displayValue = JSON.stringify(value);
+                        }
+                        return (
+                          <View
+                            key={key}
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              marginBottom: 6,
+                            }}
+                          >
+                            <Text
+                              style={{ color: colors.text.secondary, flex: 1 }}
+                            >
+                              {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
+                              {displayValue}
+                            </Text>
+                            <TouchableOpacity
+                              onPress={async () => {
+                                await Clipboard.setStringAsync(displayValue);
+                                Alert.alert(
+                                  "Copied",
+                                  `${
+                                    key.charAt(0).toUpperCase() + key.slice(1)
+                                  } copied to clipboard.`
+                                );
+                              }}
+                              style={{ marginLeft: 8 }}
+                              accessibilityLabel={`Copy ${key}`}
+                            >
+                              <CopyIcon
+                                size={16}
+                                color={colors.text.secondary}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      }
+                    )}
+                  </View>
+                )}
+
+              {/* Other registration info */}
               {(() => {
                 const fields: { label: string; value: React.ReactNode }[] = [];
                 // Hide these fields
@@ -129,6 +203,7 @@ const RegistrationDetailsModal: React.FC<RegistrationDetailsModalProps> = ({
                   "expiresAt",
                   "createdAt",
                   "driverId",
+                  "contact", // Don't show contact here
                 ];
                 // Name
                 if (registration.name)
@@ -224,19 +299,6 @@ const RegistrationDetailsModal: React.FC<RegistrationDetailsModalProps> = ({
                 // Notes
                 if (registration.notes)
                   fields.push({ label: "Notes", value: registration.notes });
-                // Contact
-                if (registration.contact) {
-                  if (registration.contact.email)
-                    fields.push({
-                      label: "Email",
-                      value: registration.contact.email,
-                    });
-                  if (registration.contact.phone)
-                    fields.push({
-                      label: "Phone",
-                      value: registration.contact.phone,
-                    });
-                }
                 return fields.map(({ label, value }, i) => (
                   <View key={i} style={{ marginBottom: 8 }}>
                     <Text
