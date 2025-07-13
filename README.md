@@ -123,6 +123,118 @@ The app includes a delightful 404 page with:
 - **Beautiful illustration** - Mountain road scene with directional signs
 - **Easy navigation** - "Back to Safe Roads" button returns to home
 
+### Form and FormField Components
+
+The form system is built around two components: Form and FormField, both found in components.
+
+#### Form:
+
+Manages the state and validation for a group of fields.
+Accepts a fields array (each field is a config object) and an onSubmit callback.
+Handles value changes, required field validation, and field-type-specific validation (email, phone, number, dropdown).
+Renders a FormField for each field config, passing value, error, and change handler.
+Optionally, wraps children (e.g., a submit button) and injects the submit handler.
+
+#### Dynamic Form Architecture
+
+The form system supports dynamic field visibility using a `showIf` property on field configs. This allows fields to appear or disappear based on the current form values (e.g., checking a checkbox reveals more fields).
+
+- **Form state is managed in the parent (`RegistrationModal`)**. The parent holds the current form values and filters the field list before passing it to the `Form`.
+- **Field configs can include a `showIf` function**: If present, the field is only shown when `showIf(formValues)` returns true.
+- **The `Form` component is controlled**: It receives `values` and `onChange` props, and updates the parent on every change.
+- **This enables dynamic, conditional forms**: For example, checking "Flexible Departure Time" will show the time range fields, while unchecking it will show a single time field.
+
+##### Example field config with `showIf`:
+
+```js
+{
+  key: "departureTimeStart",
+  label: "Departure Time Start",
+  type: "time",
+  required: true,
+  showIf: (values) => values.isFlexibleTime,
+}
+```
+
+##### Example usage in parent:
+
+```js
+const [formValues, setFormValues] = useState({});
+const filteredFields = fields.filter(
+  (field) => !field.showIf || field.showIf(formValues)
+);
+<Form
+  fields={filteredFields}
+  values={formValues}
+  onChange={setFormValues}
+  onSubmit={handleSubmit}
+/>;
+```
+
+This pattern allows for highly flexible, dynamic forms with minimal boilerplate.
+
+#### How they are used:
+
+Define an array of field configs and pass it to Form.
+Place any submit button as a child of Form (it will receive the submit handler).
+Form manages all state, validation, and submission logic; FormField only handles display and input for a single field.
+
+#### Example field config:
+
+```ts
+const fields = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "email", label: "Email", type: "email", required: true },
+  { key: "phone", label: "Phone", type: "phone" },
+  {
+    key: "departureDate",
+    label: "Departure Date",
+    type: "date",
+    required: true,
+  },
+  {
+    key: "departureTime",
+    label: "Departure Time",
+    type: "time",
+    required: true,
+  },
+  { key: "flexible", label: "Flexible Departure", type: "checkbox" },
+  {
+    key: "luggage",
+    label: "Luggage Size",
+    type: "dropdown",
+    options: [
+      { label: "Small", value: "small" },
+      { label: "Medium", value: "medium" },
+      { label: "Large", value: "large" },
+    ],
+  },
+  { key: "notes", label: "Notes", type: "multiline_text" },
+  {
+    key: "summary",
+    label: "Summary",
+    type: "display",
+    value: "This is a read-only summary.",
+  },
+  { key: "timezone", label: "Timezone", type: "timezone" },
+];
+```
+
+Place any submit button as a child of Form (it will receive the submit handler).
+Form manages all state, validation, and submission logic; FormField only handles display and input for a single field.
+
+#### What can be done:
+
+Build forms with required fields, email validation, and custom field types.
+Centralize validation and state management for all fields in one place.
+Easily add new field types by extending FormField.
+
+#### What cannot be done:
+
+Use FormField outside of a Form (it will not manage its own state or validation).
+Handle complex, cross-field validation (current validation is per-field only).
+Use uncontrolled inputs (all fields are controlled by the Form state).
+
 ## 🔧 Development
 
 ### Project Structure

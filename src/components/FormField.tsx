@@ -6,16 +6,29 @@ import { TimezoneSearchDropdown } from "./TimezoneSearchDropdown";
 export interface FormFieldConfig {
   key: string;
   label: string;
-  type: "text" | "email" | "timezone";
+  type:
+    | "text"
+    | "email"
+    | "phone"
+    | "number"
+    | "checkbox"
+    | "date"
+    | "time"
+    | "dropdown"
+    | "multiline_text"
+    | "display"
+    | "timezone";
   required?: boolean;
   placeholder?: string;
-  value?: string;
+  value?: string | boolean | number;
+  options?: { label: string; value: string }[]; // for dropdown
+  disabled?: boolean; // for display
 }
 
 interface FormFieldProps {
   config: FormFieldConfig;
-  value: string;
-  onChangeText: (key: string, text: string) => void;
+  value: any;
+  onChangeValue: (key: string, value: any) => void;
   error?: string;
   style?: ViewStyle;
 }
@@ -23,7 +36,7 @@ interface FormFieldProps {
 export const FormField: React.FC<FormFieldProps> = ({
   config,
   value,
-  onChangeText,
+  onChangeValue,
   error,
   style,
 }) => {
@@ -31,6 +44,10 @@ export const FormField: React.FC<FormFieldProps> = ({
     switch (config.type) {
       case "email":
         return "email-address";
+      case "phone":
+        return "phone-pad";
+      case "number":
+        return "numeric";
       default:
         return "default";
     }
@@ -40,19 +57,98 @@ export const FormField: React.FC<FormFieldProps> = ({
     if (config.type === "timezone") {
       return (
         <TimezoneSearchDropdown
-          value={value}
-          onSelect={(timezoneId) => onChangeText(config.key, timezoneId)}
+          value={typeof value === "string" ? value : ""}
+          onSelect={(timezoneId) => onChangeValue(config.key, timezoneId)}
           placeholder={config.placeholder || "Select timezone"}
           error={error}
         />
       );
     }
 
+    if (config.type === "checkbox") {
+      return (
+        <input
+          type="checkbox"
+          checked={!!value}
+          onChange={(e) => onChangeValue(config.key, e.target.checked)}
+          style={{ width: 20, height: 20 }}
+        />
+      );
+    }
+
+    if (config.type === "dropdown" && config.options) {
+      return (
+        <select
+          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChangeValue(config.key, e.target.value)}
+        >
+          <option value="" disabled>
+            {config.placeholder || "Select an option"}
+          </option>
+          {config.options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    if (config.type === "date") {
+      return (
+        <input
+          type="date"
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChangeValue(config.key, e.target.value)}
+          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+        />
+      );
+    }
+
+    if (config.type === "time") {
+      return (
+        <input
+          type="time"
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChangeValue(config.key, e.target.value)}
+          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+        />
+      );
+    }
+
+    if (config.type === "multiline_text") {
+      return (
+        <TextInput
+          style={[styles.input, error && styles.inputError, { minHeight: 80 }]}
+          value={typeof value === "string" ? value : ""}
+          onChangeText={(text) => onChangeValue(config.key, text)}
+          placeholder={config.placeholder}
+          multiline
+          numberOfLines={4}
+        />
+      );
+    }
+
+    if (config.type === "display") {
+      return (
+        <Text style={[styles.input, { backgroundColor: "transparent" }]}>
+          {String(value ?? "")}
+        </Text>
+      );
+    }
+
+    // phone, number, email, text
+    // React Native TextInput does not support inputMode prop as a string; use keyboardType only.
     return (
       <TextInput
         style={[styles.input, error && styles.inputError]}
-        value={value}
-        onChangeText={(text) => onChangeText(config.key, text)}
+        value={
+          typeof value === "string" || typeof value === "number"
+            ? String(value)
+            : ""
+        }
+        onChangeText={(text) => onChangeValue(config.key, text)}
         placeholder={config.placeholder}
         keyboardType={getKeyboardType()}
         autoCapitalize={config.type === "email" ? "none" : "words"}

@@ -15,20 +15,24 @@ export const Form: React.FC<FormProps> = ({
   children,
   style,
 }) => {
-  const [values, setValues] = useState<Record<string, string>>(() => {
-    const initialValues: Record<string, string> = {};
+  const [values, setValues] = useState<Record<string, any>>(() => {
+    const initialValues: Record<string, any> = {};
     fields.forEach((field) => {
-      initialValues[field.key] = field.value || "";
+      if (field.type === "checkbox") {
+        initialValues[field.key] = field.value ?? false;
+      } else if (field.type === "number") {
+        initialValues[field.key] = field.value ?? "";
+      } else {
+        initialValues[field.key] = field.value ?? "";
+      }
     });
     return initialValues;
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleFieldChange = (key: string, text: string) => {
-    setValues((prev) => ({ ...prev, [key]: text }));
-
-    // Clear error when user starts typing
+  const handleFieldChange = (key: string, value: any) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: "" }));
     }
@@ -36,18 +40,42 @@ export const Form: React.FC<FormProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     fields.forEach((field) => {
-      if (field.required && !values[field.key]?.trim()) {
-        newErrors[field.key] = `${field.label} is required`;
-      } else if (field.type === "email" && values[field.key]) {
+      const val = values[field.key];
+      if (field.type === "display") return; // skip display fields
+      if (field.required) {
+        if (field.type === "checkbox" && !val) {
+          newErrors[field.key] = `${field.label} is required`;
+        } else if (
+          val === undefined ||
+          val === null ||
+          val === "" ||
+          (typeof val === "string" && !val.trim())
+        ) {
+          newErrors[field.key] = `${field.label} is required`;
+        }
+      }
+      if (field.type === "email" && val) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(values[field.key])) {
+        if (!emailRegex.test(val)) {
           newErrors[field.key] = "Please enter a valid email address";
         }
       }
+      if (field.type === "phone" && val) {
+        const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
+        if (!phoneRegex.test(val)) {
+          newErrors[field.key] = "Please enter a valid phone number";
+        }
+      }
+      if (field.type === "number" && val) {
+        if (isNaN(Number(val))) {
+          newErrors[field.key] = "Please enter a valid number";
+        }
+      }
+      if (field.type === "dropdown" && field.required && (!val || val === "")) {
+        newErrors[field.key] = `${field.label} is required`;
+      }
     });
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,7 +93,7 @@ export const Form: React.FC<FormProps> = ({
           key={field.key}
           config={field}
           value={values[field.key] || ""}
-          onChangeText={handleFieldChange}
+          onChangeValue={handleFieldChange}
           error={errors[field.key]}
         />
       ))}

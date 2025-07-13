@@ -9,8 +9,105 @@ import { PassengerRegistrationData } from "../../../src/components/PassengerRegi
 import { Toast } from "../../../src/components/Toast";
 import { colors } from "../../../src/styles/colors";
 import { ResponsiveContainer } from "../../../src/components/ResponsiveContainer";
+import { Dialog } from "../../../src/components/Dialog";
 
-export default function CarpoolMatchingPage() {
+// Field configs for ride and passenger registration
+const luggageOptions = [
+  { label: "Small", value: "small" },
+  { label: "Medium", value: "medium" },
+  { label: "Large", value: "large" },
+];
+
+const rideFields = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "email", label: "Email", type: "email" },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "date", label: "Departure Date", type: "date", required: true },
+  {
+    key: "isFlexibleTime",
+    label: "Flexible Departure Time",
+    type: "checkbox",
+    default: false,
+  },
+  // Time fields will be conditionally rendered in RegistrationModal
+  {
+    key: "departureTimeStart",
+    label: "Departure Time Start",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTimeEnd",
+    label: "Departure Time End",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTime",
+    label: "Departure Time",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "seatsTotal",
+    label: "Seats Available",
+    type: "number",
+    required: true,
+  },
+  {
+    key: "luggageSpace",
+    label: "Luggage Space",
+    type: "dropdown",
+    options: luggageOptions,
+  },
+  {
+    key: "preferToDrive",
+    label: "I prefer to drive",
+    type: "checkbox",
+    default: true,
+  },
+  { key: "canDrive", label: "I can drive", type: "checkbox", default: true },
+  { key: "notes", label: "Notes", type: "multiline_text" },
+];
+
+const passengerFields = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "email", label: "Email", type: "email" },
+  { key: "phone", label: "Phone", type: "phone" },
+  { key: "date", label: "Departure Date", type: "date", required: true },
+  {
+    key: "isFlexibleTime",
+    label: "Flexible Departure",
+    type: "checkbox",
+    default: false,
+  },
+  {
+    key: "departureTimeStart",
+    label: "Departure Time Start",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTimeEnd",
+    label: "Departure Time End",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "departureTime",
+    label: "Departure Time",
+    type: "time",
+    required: true,
+  },
+  {
+    key: "canDrive",
+    label: "I can drive if needed",
+    type: "checkbox",
+    default: false,
+  },
+  { key: "notes", label: "Notes", type: "multiline_text" },
+];
+const MatchingScreen: React.FC = () => {
   const { carpoolId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState("myRegistration");
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
@@ -19,13 +116,25 @@ export default function CarpoolMatchingPage() {
   >(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     // Check if user has existing registration
     // If no registration exists, auto-open registration modal
     const hasExistingRegistration = checkForExistingRegistration();
     if (!hasExistingRegistration) {
-      setShowRegistrationModal(true);
+      if (typeof window !== "undefined") {
+        const dismissed = sessionStorage.getItem(
+          "hasDismissedRegistrationDialog"
+        );
+        if (!dismissed) {
+          setShowDialog(true);
+        } else {
+          setShowRegistrationModal(true);
+        }
+      } else {
+        setShowRegistrationModal(true);
+      }
     }
   }, []);
 
@@ -182,14 +291,16 @@ export default function CarpoolMatchingPage() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerSticky}>
+        <Text style={styles.pageTitle}>Carpool Matching</Text>
+        <TabMenu
+          tabs={mainTabs}
+          activeTab={activeTab}
+          onTabPress={setActiveTab}
+        />
+      </View>
       <ScrollView style={styles.content}>
         <ResponsiveContainer>
-          <Text style={styles.pageTitle}>Carpool Matching</Text>
-          <TabMenu
-            tabs={mainTabs}
-            activeTab={activeTab}
-            onTabPress={setActiveTab}
-          />
           {activeTab === "myRegistration"
             ? renderMyRegistration()
             : renderAllRegistrations()}
@@ -201,6 +312,27 @@ export default function CarpoolMatchingPage() {
         onClose={() => setShowRegistrationModal(false)}
         onSubmit={handleRegistrationSubmit}
         autoOpen={!userRegistration}
+        rideFields={rideFields}
+        passengerFields={passengerFields}
+      />
+
+      <Dialog
+        visible={showDialog}
+        title="Complete your registration"
+        description="For the best user experience, we recommend completing your registration first. This helps us show you the most relevant ride options. Are you sure you want to see other registrations without completing yours?"
+        onAccept={() => {
+          setShowDialog(false);
+          setShowRegistrationModal(true);
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("hasDismissedRegistrationDialog", "true");
+          }
+          setShowRegistrationModal(false);
+        }}
+        acceptText="Continue filling form"
+        cancelText="Yes, show other registrations"
       />
 
       <Toast
@@ -210,7 +342,9 @@ export default function CarpoolMatchingPage() {
       />
     </View>
   );
-}
+};
+
+export default MatchingScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -228,6 +362,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  headerSticky: {
+    backgroundColor: colors.background.primary,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    zIndex: 2,
   },
   emptyState: {
     alignItems: "center",
