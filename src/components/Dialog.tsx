@@ -41,31 +41,25 @@ export const Dialog: React.FC<DialogProps> = ({
     >
       <View style={styles.backdrop}>
         <ResponsiveContainer style={style}>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={onCancel}
-            style={{ flex: 1 }}
-          >
-            <View style={styles.container}>
-              <View style={styles.dialog}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.description}>{description}</Text>
-                <View style={styles.buttonContainer}>
-                  <SmallButton
-                    title={cancelText}
-                    onPress={onCancel}
-                    style={styles.cancelButton}
-                    textStyle={styles.cancelButtonText}
-                  />
-                  <SmallButton
-                    title={acceptText}
-                    onPress={onAccept}
-                    style={styles.acceptButton}
-                  />
-                </View>
+          <View style={styles.container}>
+            <View style={styles.dialog}>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.description}>{description}</Text>
+              <View style={styles.buttonContainer}>
+                <SmallButton
+                  title={cancelText}
+                  onPress={onCancel}
+                  style={styles.cancelButton}
+                  textStyle={styles.cancelButtonText}
+                />
+                <SmallButton
+                  title={acceptText}
+                  onPress={onAccept}
+                  style={styles.acceptButton}
+                />
               </View>
             </View>
-          </TouchableOpacity>
+          </View>
         </ResponsiveContainer>
       </View>
     </Modal>

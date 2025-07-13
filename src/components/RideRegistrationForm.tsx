@@ -33,7 +33,7 @@ export const RideRegistrationForm: React.FC<RideRegistrationFormProps> = ({
   const [formData, setFormData] = useState<Partial<RideRegistrationData>>({
     isFlexibleTime: false,
     preferToDrive: true,
-    canDrive: true,
+    canDrive: false,
     luggageSpace: "Medium",
     seatsTotal: 1,
     ...initialData,

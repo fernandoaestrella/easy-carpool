@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Switch } from "react-native";
-import { FormField, FormFieldConfig } from "./FormField";
+import { StyleSheet, View, Text, Switch } from "react-native";
+import { Form } from "./Form";
+import { FormFieldConfig } from "./FormField";
 import { BigButton } from "./BigButton";
 import { colors } from "../styles/colors";
 
@@ -65,42 +66,75 @@ export const PassengerRegistrationForm: React.FC<
     {
       key: "name",
       label: "Full Name",
-      type: "text",
+      type: "text" as const,
       required: true,
       value: formData.name || "",
     },
     {
       key: "email",
       label: "Email",
-      type: "email",
+      type: "email" as const,
       value: formData.email || "",
     },
     {
       key: "phone",
       label: "Phone Number",
-      type: "text",
+      type: "text" as const,
       value: formData.phone || "",
     },
   ];
 
+  const allFields: FormFieldConfig[] = [
+    {
+      key: "date",
+      label: "Departure Date",
+      type: "text" as const,
+      required: true,
+      placeholder: "Select date",
+      value: formData.date || "",
+    },
+    ...(formData.isFlexibleTime
+      ? [
+          {
+            key: "departureTimeStart",
+            label: "Preferred Time Start",
+            type: "text" as const,
+            required: true,
+            placeholder: "e.g., 9:00 AM",
+            value: formData.departureTimeStart || "",
+          },
+          {
+            key: "departureTimeEnd",
+            label: "Preferred Time End",
+            type: "text" as const,
+            required: true,
+            placeholder: "e.g., 2:00 PM",
+            value: formData.departureTimeEnd || "",
+          },
+        ]
+      : [
+          {
+            key: "departureTimeStart",
+            label: "Preferred Departure Time",
+            type: "text" as const,
+            required: true,
+            placeholder: "e.g., 10:30 AM",
+            value: formData.departureTimeStart || "",
+          },
+        ]),
+    {
+      key: "notes",
+      label: "Notes",
+      type: "text" as const,
+      placeholder: "Additional information...",
+      value: formData.notes || "",
+    },
+    ...contactFields,
+  ];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Trip Information</Text>
-
-      <FormField
-        config={{
-          key: "date",
-          label: "Departure Date",
-          type: "text",
-          required: true,
-          placeholder: "Select date",
-        }}
-        value={formData.date || ""}
-        onChangeText={(key, value) => updateField("date", value)}
-      />
-
-      <View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>Flexible Departure Time</Text>
+    <Form fields={allFields} onSubmit={handleSubmit}>
+      <View style={styles.toggleRow}>
         <Switch
           value={formData.isFlexibleTime}
           onValueChange={(value) => updateField("isFlexibleTime", value)}
@@ -113,56 +147,11 @@ export const PassengerRegistrationForm: React.FC<
               ? colors.interactive.primary
               : colors.neutral.primary
           }
+          style={styles.toggle}
         />
+        <Text style={styles.toggleLabel}>Flexible Departure Time</Text>
       </View>
-
-      {formData.isFlexibleTime ? (
-        <>
-          <FormField
-            config={{
-              key: "departureTimeStart",
-              label: "Preferred Time Start",
-              type: "text",
-              required: true,
-              placeholder: "e.g., 9:00 AM",
-            }}
-            value={formData.departureTimeStart || ""}
-            onChangeText={(key, value) =>
-              updateField("departureTimeStart", value)
-            }
-          />
-          <FormField
-            config={{
-              key: "departureTimeEnd",
-              label: "Preferred Time End",
-              type: "text",
-              required: true,
-              placeholder: "e.g., 2:00 PM",
-            }}
-            value={formData.departureTimeEnd || ""}
-            onChangeText={(key, value) =>
-              updateField("departureTimeEnd", value)
-            }
-          />
-        </>
-      ) : (
-        <FormField
-          config={{
-            key: "departureTimeStart",
-            label: "Preferred Departure Time",
-            type: "text",
-            required: true,
-            placeholder: "e.g., 10:30 AM",
-          }}
-          value={formData.departureTimeStart || ""}
-          onChangeText={(key, value) =>
-            updateField("departureTimeStart", value)
-          }
-        />
-      )}
-
-      <View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>I can drive if needed</Text>
+      <View style={styles.toggleRow}>
         <Switch
           value={formData.canDrive}
           onValueChange={(value) => updateField("canDrive", value)}
@@ -175,74 +164,31 @@ export const PassengerRegistrationForm: React.FC<
               ? colors.interactive.primary
               : colors.neutral.primary
           }
+          style={styles.toggle}
         />
+        <Text style={styles.toggleLabel}>I can drive if needed</Text>
       </View>
-
-      <FormField
-        config={{
-          key: "notes",
-          label: "Notes",
-          type: "text",
-          placeholder: "Additional information...",
-        }}
-        value={formData.notes || ""}
-        onChangeText={(key, value) => updateField("notes", value)}
-      />
-
-      <Text style={styles.sectionTitle}>Contact Information</Text>
-      <Text style={styles.subtitle}>Provide at least one contact method</Text>
-
-      {contactFields.map((field) => (
-        <FormField
-          key={field.key}
-          config={field}
-          value={
-            formData[
-              field.key as keyof PassengerRegistrationData
-            ]?.toString() || ""
-          }
-          onChangeText={(key, value) =>
-            updateField(key as keyof PassengerRegistrationData, value)
-          }
-        />
-      ))}
-
       <BigButton
         title="Join Waitlist"
         onPress={handleSubmit}
         style={styles.submitButton}
       />
-    </View>
+    </Form>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text.primary,
-    marginBottom: 16,
-    marginTop: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.text.secondary,
-    marginBottom: 16,
-  },
-  switchRow: {
+  toggleRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    marginBottom: 16,
+    marginBottom: 8,
   },
-  switchLabel: {
+  toggle: {
+    marginRight: 8,
+  },
+  toggleLabel: {
     fontSize: 16,
     color: colors.text.primary,
-    flex: 1,
   },
   submitButton: {
     marginTop: 24,
