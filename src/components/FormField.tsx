@@ -76,12 +76,26 @@ export const FormField: React.FC<FormFieldProps> = ({
       );
     }
 
+    // Focus state for border
+    const [isFocused, setIsFocused] = React.useState(false);
+    const focusBorder = isFocused
+      ? "1.5px solid " + colors.interactive.primary
+      : "none";
+
     if (config.type === "dropdown" && config.options) {
       return (
         <select
-          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+          style={{
+            minHeight: 48,
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+            border: focusBorder,
+          }}
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChangeValue(config.key, e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         >
           <option value="" disabled>
             {config.placeholder || "Select an option"}
@@ -101,7 +115,15 @@ export const FormField: React.FC<FormFieldProps> = ({
           type="date"
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChangeValue(config.key, e.target.value)}
-          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+          style={{
+            minHeight: 48,
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+            border: focusBorder,
+          }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
       );
     }
@@ -112,7 +134,15 @@ export const FormField: React.FC<FormFieldProps> = ({
           type="time"
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChangeValue(config.key, e.target.value)}
-          style={{ minHeight: 48, borderRadius: 8, padding: 12, fontSize: 16 }}
+          style={{
+            minHeight: 48,
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+            border: focusBorder,
+          }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
       );
     }
